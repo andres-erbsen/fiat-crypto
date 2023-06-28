@@ -218,6 +218,8 @@ Module Compilers.
            | (Z_zselect ty @@@ args)
              => special_name_ty "cmovznz" ty ++ "(" ++ arith_to_string internal_static prefix args ++ ")"
            | (Z_add_modulo @@@ (x1, x2, x3)) => "#error addmodulo;"
+           | (Z_static_cast (int.unsigned 7) @@@ (Z_mul @@@ (Z_static_cast (int.unsigned 6) @@@ x1, Z_static_cast (int.unsigned 6) @@@ x2) ))
+               => "u128_mul_u64_u64(" ++ arith_to_string internal_static prefix x1 ++", " ++ arith_to_string internal_static prefix x2 ++ ")"
            | (Z_static_cast int_t @@@ e)
              => "(" ++ String.type.primitive.to_string prefix type.Z (Some int_t) ++ ")"
                     ++ arith_to_string internal_static prefix e
@@ -472,7 +474,11 @@ Module Compilers.
               | use_common_type => C_common_type t1 t2
               end.
 
-      Definition C_bin_op_casts
+      Definition is_stdint (t : int.type) : bool :=
+        List.existsb (Z.eqb (int.bitwidth_of t)) [8;16;32;64].
+
+
+      Definition C_std_bin_op_casts
         : Z_binop -> option int.type -> int.type * int.type -> option int.type * (option int.type * option int.type)
         := fun idc desired_type '(t1, t2)
            => match kind_of_binop idc with
@@ -490,6 +496,13 @@ Module Compilers.
                         (get_Zcast_down_if_needed desired_type (Some ct), (t1o, t2o))
                    end
               end.
+
+      Definition C_bin_op_casts
+        : Z_binop -> option int.type -> int.type * int.type -> option int.type * (option int.type * option int.type)
+        := fun idc desired_type '(t1, t2) =>
+        if (option_rect _ is_stdint true desired_type && is_stdint t1 && is_stdint t2)
+        then C_std_bin_op_casts idc desired_type (t1, t2)
+        else (desired_type, (Some t1, Some t2)).
 
       Definition C_un_op_casts
         : Z_unop -> option int.type -> int.type -> option int.type * option int.type
