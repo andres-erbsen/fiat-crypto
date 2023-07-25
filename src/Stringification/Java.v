@@ -282,7 +282,7 @@ Module Java.
        end.
 
   Definition Java_bin_op_casts
-    : IR.Z_binop -> option ToString.int.type -> ToString.int.type * ToString.int.type -> option ToString.int.type * (option ToString.int.type * option ToString.int.type)
+    : IR.Z_binop -> option ToString.int.type -> ToString.int.type * ToString.int.type -> option ToString.int.type * (option ToString.int.type * option ToString.int.type) * bool
     := fun idc desired_type '(t1, t2)
        => match desired_type with
           | Some desired_type
@@ -290,17 +290,17 @@ Module Java.
                if bin_op_commutes_with_mod_pow2 idc
                then
                  (* these operations commute with mod, so we just pre-cast them *)
-                 (None, (Some desired_type, Some desired_type))
+                 (None, (Some desired_type, Some desired_type), false)
                else
                  let desired_type' := Some (ToString.int.union ct desired_type) in
                  (desired_type',
                   (get_Zcast_up_if_needed desired_type' (Some t1),
-                   get_Zcast_up_if_needed desired_type' (Some t2)))
-          | None => (None, (None, None))
+                   get_Zcast_up_if_needed desired_type' (Some t2)), false)
+          | None => (None, (None, None), false)
           end.
 
   Definition Java_un_op_casts
-    : IR.Z_unop -> option ToString.int.type -> ToString.int.type -> option ToString.int.type * option ToString.int.type
+    : IR.Z_unop -> option ToString.int.type -> ToString.int.type -> option ToString.int.type * option ToString.int.type * bool
     := fun idc desired_type t
        => match idc with
           | IR.Z_shiftr offset
@@ -318,7 +318,7 @@ Module Java.
             ((** We cast the result down to the specified type, if needed *)
               get_Zcast_down_if_needed desired_type (Some t'),
               (** We cast the argument up to a large enough type *)
-              get_Zcast_up_if_needed (Some t') (Some t))
+              get_Zcast_up_if_needed (Some t') (Some t), false)
           | IR.Z_shiftl offset
             => (** N.B. We must cast the expression up to a large
                    enough type to fit 2^offset (importantly, not just
@@ -337,24 +337,24 @@ Module Java.
             ((** We cast the result down to the specified type, if needed *)
               get_Zcast_down_if_needed desired_type rpre_out,
               (** We cast the argument up to a large enough type *)
-              get_Zcast_up_if_needed rpre_out (Some t))
+              get_Zcast_up_if_needed rpre_out (Some t), false)
           | IR.Z_lnot ty
             => ((* if the result is too big, we cast it down; we
                        don't need to upcast it because it'll get
                        picked up by implicit casts if necessary *)
               get_Zcast_down_if_needed desired_type (Some ty),
               (** always cast to the width of the type, unless we are already exactly that type (which the machinery in IR handles *)
-              Some ty)
+              Some ty, false)
           | IR.Z_value_barrier ty
             => ((* if the result is too big, we cast it down; we
                        don't need to upcast it because it'll get
                        picked up by implicit casts if necessary *)
               get_Zcast_down_if_needed desired_type (Some ty),
               (** always cast to the width of the type, unless we are already exactly that type (which the machinery in IR handles *)
-              Some ty)
+              Some ty, false)
           | IR.Z_bneg
             => ((* bneg is !, i.e., takes the argument to 1 if its not zero, and to zero if it is zero; so we don't ever need to cast *)
-              None, None)
+              None, None, false)
           end.
 
   Local Instance JavaLanguageCasts : LanguageCasts :=

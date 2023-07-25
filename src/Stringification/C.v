@@ -218,8 +218,16 @@ Module Compilers.
            | (Z_zselect ty @@@ args)
              => special_name_ty "cmovznz" ty ++ "(" ++ arith_to_string internal_static prefix args ++ ")"
            | (Z_add_modulo @@@ (x1, x2, x3)) => "#error addmodulo;"
+           | (Z_static_cast (int.unsigned 7) @@@ (Z_add @@@ (Z_static_cast (int.unsigned 7) @@@ x1, Z_static_cast (int.unsigned 7) @@@ x2) ))
+               => "u128_add_u128_u128(" ++ arith_to_string internal_static prefix x1 ++", " ++ arith_to_string internal_static prefix x2 ++ ")"
+           | (Z_static_cast (int.unsigned 7) @@@ (Z_add @@@ (Z_static_cast (int.unsigned 6) @@@ x1, Z_static_cast (int.unsigned 7) @@@ x2) ))
+               => "u128_add_u64_u128(" ++ arith_to_string internal_static prefix x1 ++", " ++ arith_to_string internal_static prefix x2 ++ ")"
            | (Z_static_cast (int.unsigned 7) @@@ (Z_mul @@@ (Z_static_cast (int.unsigned 6) @@@ x1, Z_static_cast (int.unsigned 6) @@@ x2) ))
                => "u128_mul_u64_u64(" ++ arith_to_string internal_static prefix x1 ++", " ++ arith_to_string internal_static prefix x2 ++ ")"
+           | (Z_static_cast (int.unsigned 6) @@@ (Z_and @@@ (Z_static_cast (int.unsigned 7) @@@ x1, Z_static_cast (int.unsigned 6) @@@ x2) ))
+               => "u64_and_u128_u64(" ++ arith_to_string internal_static prefix x1 ++", " ++ arith_to_string internal_static prefix x2 ++ ")"
+           | (Z_static_cast (int.unsigned 6) @@@ (Z_shiftr offset @@@ (Z_static_cast (int.unsigned 7) @@@ x)))
+               => "u64_shr_u128(" ++ arith_to_string internal_static prefix x ++", " ++ Decimal.Z.to_string offset ++ ")"
            | (Z_static_cast int_t @@@ e)
              => "(" ++ String.type.primitive.to_string prefix type.Z (Some int_t) ++ ")"
                     ++ arith_to_string internal_static prefix e
@@ -498,13 +506,13 @@ Module Compilers.
               end.
 
       Definition C_bin_op_casts
-        : Z_binop -> option int.type -> int.type * int.type -> option int.type * (option int.type * option int.type)
+        : Z_binop -> option int.type -> int.type * int.type -> option int.type * (option int.type * option int.type) * bool
         := fun idc desired_type '(t1, t2) =>
         if (option_rect _ is_stdint true desired_type && is_stdint t1 && is_stdint t2)
-        then C_std_bin_op_casts idc desired_type (t1, t2)
-        else (desired_type, (Some t1, Some t2)).
+        then (C_std_bin_op_casts idc desired_type (t1, t2), false)
+        else (desired_type, (Some t1, Some t2), true).
 
-      Definition C_un_op_casts
+      Definition C_std_un_op_casts
         : Z_unop -> option int.type -> int.type -> option int.type * option int.type
         := fun idc desired_type t
            => let t := integer_promote_type t in
@@ -562,6 +570,13 @@ Module Compilers.
                 => ((* bneg is !, i.e., takes the argument to 1 if its not zero, and to zero if it is zero; so we don't ever need to cast *)
                   None, None)
               end.
+
+      Definition C_un_op_casts
+        : Z_unop -> option int.type -> int.type -> option int.type * option int.type * bool :=
+        fun idc desired_type t =>
+        if (option_rect _ is_stdint true desired_type && is_stdint t)
+        then (C_std_un_op_casts idc desired_type t, false)
+        else (desired_type, Some t, true).
 
       Local Instance CLanguageCasts : LanguageCasts :=
         {| bin_op_natural_output := C_bin_op_natural_output

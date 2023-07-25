@@ -399,20 +399,21 @@ Module Compilers.
                type that the output fits in, and the pair of known
                types that the inputs fit in.  It returns the triple of
                (output, (input1, intput2)) of casts that are necessary
-               for running the operation.  No-op casts on the inputs
-               will later be discarded; the cast on the output, if
-               given, will always be used. *)
+               for running the operation and a boolean [always]. Unless
+               [always] is true, no-op casts on the inputs will later be
+               discarded; the cast on the output, if given, will be used. *)
             bin_op_casts
-            : Z_binop -> option int.type -> int.type * int.type -> option int.type * (option int.type * option int.type);
+            : Z_binop -> option int.type -> int.type * int.type -> option int.type * (option int.type * option int.type) * bool;
             (* [un_op_casts] takes in a unary operation, the known
                type that the output fits in, and the known types that
                the input fits in.  It returns the tuple of (output,
                input) of casts that are necessary for running the
-               operation.  No-op casts on the inputs will later be
+               operation and a bolean [always].  Unless [always] is
+               true, no-op casts on the inputs will later be
                discarded; the cast on the output, if given, will
                always be used. *)
             un_op_casts
-            : Z_unop -> option int.type -> int.type -> option int.type * option int.type;
+            : Z_unop -> option int.type -> int.type -> option int.type * option int.type * bool;
             (* Are upcasts necessary on assignments? *)
             upcast_on_assignment : bool;
             (* Are upcasts necessary for arguments to function calls? *)
@@ -443,20 +444,20 @@ Module Compilers.
                   | _, _ => None
                   end.
           Definition bin_op_casts_opt
-            : Z_binop -> option int.type -> option int.type * option int.type -> option int.type * (option int.type * option int.type)
+            : Z_binop -> option int.type -> option int.type * option int.type -> option int.type * (option int.type * option int.type) * bool
             := fun idc tout '(t1, t2)
                => match t1, t2 with
                   | Some t1, Some t2
                     => bin_op_casts idc tout (t1, t2)
-                  | _, _ => (tout, (None, None))
+                  | _, _ => (tout, (None, None), false)
                   end.
           Definition un_op_casts_opt
-            : Z_unop -> option int.type -> option int.type -> option int.type * option int.type
+            : Z_unop -> option int.type -> option int.type -> option int.type * option int.type * bool
             := fun idc tout t1
                => match t1 with
                   | Some t1
                     => un_op_casts idc tout t1
-                  | None => (tout, None)
+                  | None => (tout, None, false)
                   end.
 
           Definition Zcast {always : bool}
@@ -595,10 +596,10 @@ Module Compilers.
                      (idc : Z_binop)
             : option int.type -> arith_expr_for (type.base s) -> arith_expr_for (type.base d)
             := fun desired_type '((e1, t1), (e2, t2)) =>
-                 let '(cstout, (cst1, cst2)) := bin_op_casts_opt idc desired_type (t1, t2) in
+                 let '(cstout, (cst1, cst2), always) := bin_op_casts_opt idc desired_type (t1, t2) in
                  let typ := bin_op_natural_output_opt idc (Option.or_else cst1 t1, Option.or_else cst2 t2) in
-                 let '((e1, t1), (e2, t2)) := (Zcast (always:=false) cst1 (e1, t1), Zcast (always:=false) cst2 (e2, t2)) in
-                 Zcast (always:=false) cstout ((idc @@@ (e1, e2))%Cexpr, typ).
+                 let '((e1, t1), (e2, t2)) := (Zcast (always:=always) cst1 (e1, t1), Zcast (always:=always) cst2 (e2, t2)) in
+                 Zcast (always:=always) cstout ((idc @@@ (e1, e2))%Cexpr, typ).
 
           Definition arith_un_arith_expr_of_PHOAS_ident
                      (s:=tZ)
@@ -606,10 +607,10 @@ Module Compilers.
                      (idc : Z_unop)
             : option int.type -> arith_expr_for (type.base s) -> arith_expr_for (type.base d)
             := fun desired_type '(e, t) =>
-                 let '(cstout, cst) := un_op_casts_opt idc desired_type t in
+                 let '(cstout, cst, always) := un_op_casts_opt idc desired_type t in
                  let typ := (*un_op_natural_output_opt idc*) Option.or_else cst t in
-                 let '(e, t) := Zcast (always:=false) cst (e, t) in
-                 Zcast (always:=false) cstout ((idc @@@ e)%Cexpr, typ).
+                 let '(e, t) := Zcast (always:=always) cst (e, t) in
+                 Zcast (always:=always) cstout ((idc @@@ e)%Cexpr, typ).
 
           Local Definition fakeprod (A B : Compilers.type.type base.type) : Compilers.type.type base.type
             := match A, B with
