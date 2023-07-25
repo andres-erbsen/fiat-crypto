@@ -67,9 +67,9 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_addcarryx_u32(uint32_t* out1, fiat_p
   uint64_t x1;
   uint32_t x2;
   fiat_p384_uint1 x3;
-  x1 = ((arg1 + (uint64_t)arg2) + arg3);
+  x1 = ((uint64_t)((fiat_p384_uint1)arg1 + (uint32_t)arg2) + arg3);
   x2 = (uint32_t)(x1 & UINT32_C(0xffffffff));
-  x3 = (fiat_p384_uint1)(x1 >> 32);
+  x3 = (fiat_p384_uint1)((uint64_t)x1 >> 32);
   *out1 = x2;
   *out2 = x3;
 }
@@ -93,11 +93,11 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_subborrowx_u32(uint32_t* out1, fiat_
   int64_t x1;
   fiat_p384_int1 x2;
   uint32_t x3;
-  x1 = ((arg2 - (int64_t)arg1) - arg3);
-  x2 = (fiat_p384_int1)(x1 >> 32);
+  x1 = ((int64_t)((uint32_t)arg2 - (fiat_p384_uint1)arg1) - arg3);
+  x2 = (fiat_p384_int1)((int64_t)x1 >> 32);
   x3 = (uint32_t)(x1 & UINT32_C(0xffffffff));
   *out1 = x3;
-  *out2 = (fiat_p384_uint1)(0x0 - x2);
+  *out2 = (fiat_p384_uint1)((fiat_p384_uint1)0x0 - (fiat_p384_int1)x2);
 }
 
 /*
@@ -142,8 +142,8 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_cmovznz_u32(uint32_t* out1, fiat_p38
   fiat_p384_uint1 x1;
   uint32_t x2;
   uint32_t x3;
-  x1 = (!(!arg1));
-  x2 = ((fiat_p384_int1)(0x0 - x1) & UINT32_C(0xffffffff));
+  x1 = (fiat_p384_uint1)(!(fiat_p384_uint1)(fiat_p384_uint1)(!(fiat_p384_uint1)arg1));
+  x2 = (uint32_t)((fiat_p384_int1)(fiat_p384_int1)((fiat_p384_uint1)0x0 - (fiat_p384_uint1)x1) & (uint32_t)UINT32_C(0xffffffff));
   x3 = ((fiat_p384_value_barrier_u32(x2) & arg3) | (fiat_p384_value_barrier_u32((~x2)) & arg2));
   *out1 = x3;
 }
@@ -1862,7 +1862,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x53, &x54, x52, x20, x17);
   fiat_p384_addcarryx_u32(&x55, &x56, x54, x18, x15);
   fiat_p384_addcarryx_u32(&x57, &x58, x56, x16, x13);
-  x59 = (x58 + x14);
+  x59 = (uint32_t)((fiat_p384_uint1)x58 + (uint32_t)x14);
   fiat_p384_mulx_u32(&x60, &x61, x35, UINT32_C(0xffffffff));
   fiat_p384_mulx_u32(&x62, &x63, x35, UINT32_C(0xffffffff));
   fiat_p384_mulx_u32(&x64, &x65, x35, UINT32_C(0xffffffff));
@@ -1881,7 +1881,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x90, &x91, x89, x67, x64);
   fiat_p384_addcarryx_u32(&x92, &x93, x91, x65, x62);
   fiat_p384_addcarryx_u32(&x94, &x95, x93, x63, x60);
-  x96 = (x95 + x61);
+  x96 = (uint32_t)((fiat_p384_uint1)x95 + (uint32_t)x61);
   fiat_p384_addcarryx_u32(&x97, &x98, 0x0, x35, x78);
   fiat_p384_addcarryx_u32(&x99, &x100, x98, x37, x79);
   fiat_p384_addcarryx_u32(&x101, &x102, x100, x39, 0x0);
@@ -1918,7 +1918,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x163, &x164, x162, x130, x127);
   fiat_p384_addcarryx_u32(&x165, &x166, x164, x128, x125);
   fiat_p384_addcarryx_u32(&x167, &x168, x166, x126, x123);
-  x169 = (x168 + x124);
+  x169 = (uint32_t)((fiat_p384_uint1)x168 + (uint32_t)x124);
   fiat_p384_addcarryx_u32(&x170, &x171, 0x0, x99, x145);
   fiat_p384_addcarryx_u32(&x172, &x173, x171, x101, x147);
   fiat_p384_addcarryx_u32(&x174, &x175, x173, x103, x149);
@@ -1950,7 +1950,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x226, &x227, x225, x203, x200);
   fiat_p384_addcarryx_u32(&x228, &x229, x227, x201, x198);
   fiat_p384_addcarryx_u32(&x230, &x231, x229, x199, x196);
-  x232 = (x231 + x197);
+  x232 = (uint32_t)((fiat_p384_uint1)x231 + (uint32_t)x197);
   fiat_p384_addcarryx_u32(&x233, &x234, 0x0, x170, x214);
   fiat_p384_addcarryx_u32(&x235, &x236, x234, x172, x215);
   fiat_p384_addcarryx_u32(&x237, &x238, x236, x174, 0x0);
@@ -1964,7 +1964,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x253, &x254, x252, x190, x228);
   fiat_p384_addcarryx_u32(&x255, &x256, x254, x192, x230);
   fiat_p384_addcarryx_u32(&x257, &x258, x256, x194, x232);
-  x259 = ((uint32_t)x258 + x195);
+  x259 = (uint32_t)((fiat_p384_uint1)x258 + (fiat_p384_uint1)x195);
   fiat_p384_mulx_u32(&x260, &x261, x2, (arg2[11]));
   fiat_p384_mulx_u32(&x262, &x263, x2, (arg2[10]));
   fiat_p384_mulx_u32(&x264, &x265, x2, (arg2[9]));
@@ -1988,7 +1988,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x300, &x301, x299, x267, x264);
   fiat_p384_addcarryx_u32(&x302, &x303, x301, x265, x262);
   fiat_p384_addcarryx_u32(&x304, &x305, x303, x263, x260);
-  x306 = (x305 + x261);
+  x306 = (uint32_t)((fiat_p384_uint1)x305 + (uint32_t)x261);
   fiat_p384_addcarryx_u32(&x307, &x308, 0x0, x235, x282);
   fiat_p384_addcarryx_u32(&x309, &x310, x308, x237, x284);
   fiat_p384_addcarryx_u32(&x311, &x312, x310, x239, x286);
@@ -2020,7 +2020,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x363, &x364, x362, x340, x337);
   fiat_p384_addcarryx_u32(&x365, &x366, x364, x338, x335);
   fiat_p384_addcarryx_u32(&x367, &x368, x366, x336, x333);
-  x369 = (x368 + x334);
+  x369 = (uint32_t)((fiat_p384_uint1)x368 + (uint32_t)x334);
   fiat_p384_addcarryx_u32(&x370, &x371, 0x0, x307, x351);
   fiat_p384_addcarryx_u32(&x372, &x373, x371, x309, x352);
   fiat_p384_addcarryx_u32(&x374, &x375, x373, x311, 0x0);
@@ -2034,7 +2034,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x390, &x391, x389, x327, x365);
   fiat_p384_addcarryx_u32(&x392, &x393, x391, x329, x367);
   fiat_p384_addcarryx_u32(&x394, &x395, x393, x331, x369);
-  x396 = ((uint32_t)x395 + x332);
+  x396 = (uint32_t)((fiat_p384_uint1)x395 + (fiat_p384_uint1)x332);
   fiat_p384_mulx_u32(&x397, &x398, x3, (arg2[11]));
   fiat_p384_mulx_u32(&x399, &x400, x3, (arg2[10]));
   fiat_p384_mulx_u32(&x401, &x402, x3, (arg2[9]));
@@ -2058,7 +2058,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x437, &x438, x436, x404, x401);
   fiat_p384_addcarryx_u32(&x439, &x440, x438, x402, x399);
   fiat_p384_addcarryx_u32(&x441, &x442, x440, x400, x397);
-  x443 = (x442 + x398);
+  x443 = (uint32_t)((fiat_p384_uint1)x442 + (uint32_t)x398);
   fiat_p384_addcarryx_u32(&x444, &x445, 0x0, x372, x419);
   fiat_p384_addcarryx_u32(&x446, &x447, x445, x374, x421);
   fiat_p384_addcarryx_u32(&x448, &x449, x447, x376, x423);
@@ -2090,7 +2090,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x500, &x501, x499, x477, x474);
   fiat_p384_addcarryx_u32(&x502, &x503, x501, x475, x472);
   fiat_p384_addcarryx_u32(&x504, &x505, x503, x473, x470);
-  x506 = (x505 + x471);
+  x506 = (uint32_t)((fiat_p384_uint1)x505 + (uint32_t)x471);
   fiat_p384_addcarryx_u32(&x507, &x508, 0x0, x444, x488);
   fiat_p384_addcarryx_u32(&x509, &x510, x508, x446, x489);
   fiat_p384_addcarryx_u32(&x511, &x512, x510, x448, 0x0);
@@ -2104,7 +2104,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x527, &x528, x526, x464, x502);
   fiat_p384_addcarryx_u32(&x529, &x530, x528, x466, x504);
   fiat_p384_addcarryx_u32(&x531, &x532, x530, x468, x506);
-  x533 = ((uint32_t)x532 + x469);
+  x533 = (uint32_t)((fiat_p384_uint1)x532 + (fiat_p384_uint1)x469);
   fiat_p384_mulx_u32(&x534, &x535, x4, (arg2[11]));
   fiat_p384_mulx_u32(&x536, &x537, x4, (arg2[10]));
   fiat_p384_mulx_u32(&x538, &x539, x4, (arg2[9]));
@@ -2128,7 +2128,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x574, &x575, x573, x541, x538);
   fiat_p384_addcarryx_u32(&x576, &x577, x575, x539, x536);
   fiat_p384_addcarryx_u32(&x578, &x579, x577, x537, x534);
-  x580 = (x579 + x535);
+  x580 = (uint32_t)((fiat_p384_uint1)x579 + (uint32_t)x535);
   fiat_p384_addcarryx_u32(&x581, &x582, 0x0, x509, x556);
   fiat_p384_addcarryx_u32(&x583, &x584, x582, x511, x558);
   fiat_p384_addcarryx_u32(&x585, &x586, x584, x513, x560);
@@ -2160,7 +2160,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x637, &x638, x636, x614, x611);
   fiat_p384_addcarryx_u32(&x639, &x640, x638, x612, x609);
   fiat_p384_addcarryx_u32(&x641, &x642, x640, x610, x607);
-  x643 = (x642 + x608);
+  x643 = (uint32_t)((fiat_p384_uint1)x642 + (uint32_t)x608);
   fiat_p384_addcarryx_u32(&x644, &x645, 0x0, x581, x625);
   fiat_p384_addcarryx_u32(&x646, &x647, x645, x583, x626);
   fiat_p384_addcarryx_u32(&x648, &x649, x647, x585, 0x0);
@@ -2174,7 +2174,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x664, &x665, x663, x601, x639);
   fiat_p384_addcarryx_u32(&x666, &x667, x665, x603, x641);
   fiat_p384_addcarryx_u32(&x668, &x669, x667, x605, x643);
-  x670 = ((uint32_t)x669 + x606);
+  x670 = (uint32_t)((fiat_p384_uint1)x669 + (fiat_p384_uint1)x606);
   fiat_p384_mulx_u32(&x671, &x672, x5, (arg2[11]));
   fiat_p384_mulx_u32(&x673, &x674, x5, (arg2[10]));
   fiat_p384_mulx_u32(&x675, &x676, x5, (arg2[9]));
@@ -2198,7 +2198,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x711, &x712, x710, x678, x675);
   fiat_p384_addcarryx_u32(&x713, &x714, x712, x676, x673);
   fiat_p384_addcarryx_u32(&x715, &x716, x714, x674, x671);
-  x717 = (x716 + x672);
+  x717 = (uint32_t)((fiat_p384_uint1)x716 + (uint32_t)x672);
   fiat_p384_addcarryx_u32(&x718, &x719, 0x0, x646, x693);
   fiat_p384_addcarryx_u32(&x720, &x721, x719, x648, x695);
   fiat_p384_addcarryx_u32(&x722, &x723, x721, x650, x697);
@@ -2230,7 +2230,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x774, &x775, x773, x751, x748);
   fiat_p384_addcarryx_u32(&x776, &x777, x775, x749, x746);
   fiat_p384_addcarryx_u32(&x778, &x779, x777, x747, x744);
-  x780 = (x779 + x745);
+  x780 = (uint32_t)((fiat_p384_uint1)x779 + (uint32_t)x745);
   fiat_p384_addcarryx_u32(&x781, &x782, 0x0, x718, x762);
   fiat_p384_addcarryx_u32(&x783, &x784, x782, x720, x763);
   fiat_p384_addcarryx_u32(&x785, &x786, x784, x722, 0x0);
@@ -2244,7 +2244,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x801, &x802, x800, x738, x776);
   fiat_p384_addcarryx_u32(&x803, &x804, x802, x740, x778);
   fiat_p384_addcarryx_u32(&x805, &x806, x804, x742, x780);
-  x807 = ((uint32_t)x806 + x743);
+  x807 = (uint32_t)((fiat_p384_uint1)x806 + (fiat_p384_uint1)x743);
   fiat_p384_mulx_u32(&x808, &x809, x6, (arg2[11]));
   fiat_p384_mulx_u32(&x810, &x811, x6, (arg2[10]));
   fiat_p384_mulx_u32(&x812, &x813, x6, (arg2[9]));
@@ -2268,7 +2268,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x848, &x849, x847, x815, x812);
   fiat_p384_addcarryx_u32(&x850, &x851, x849, x813, x810);
   fiat_p384_addcarryx_u32(&x852, &x853, x851, x811, x808);
-  x854 = (x853 + x809);
+  x854 = (uint32_t)((fiat_p384_uint1)x853 + (uint32_t)x809);
   fiat_p384_addcarryx_u32(&x855, &x856, 0x0, x783, x830);
   fiat_p384_addcarryx_u32(&x857, &x858, x856, x785, x832);
   fiat_p384_addcarryx_u32(&x859, &x860, x858, x787, x834);
@@ -2300,7 +2300,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x911, &x912, x910, x888, x885);
   fiat_p384_addcarryx_u32(&x913, &x914, x912, x886, x883);
   fiat_p384_addcarryx_u32(&x915, &x916, x914, x884, x881);
-  x917 = (x916 + x882);
+  x917 = (uint32_t)((fiat_p384_uint1)x916 + (uint32_t)x882);
   fiat_p384_addcarryx_u32(&x918, &x919, 0x0, x855, x899);
   fiat_p384_addcarryx_u32(&x920, &x921, x919, x857, x900);
   fiat_p384_addcarryx_u32(&x922, &x923, x921, x859, 0x0);
@@ -2314,7 +2314,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x938, &x939, x937, x875, x913);
   fiat_p384_addcarryx_u32(&x940, &x941, x939, x877, x915);
   fiat_p384_addcarryx_u32(&x942, &x943, x941, x879, x917);
-  x944 = ((uint32_t)x943 + x880);
+  x944 = (uint32_t)((fiat_p384_uint1)x943 + (fiat_p384_uint1)x880);
   fiat_p384_mulx_u32(&x945, &x946, x7, (arg2[11]));
   fiat_p384_mulx_u32(&x947, &x948, x7, (arg2[10]));
   fiat_p384_mulx_u32(&x949, &x950, x7, (arg2[9]));
@@ -2338,7 +2338,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x985, &x986, x984, x952, x949);
   fiat_p384_addcarryx_u32(&x987, &x988, x986, x950, x947);
   fiat_p384_addcarryx_u32(&x989, &x990, x988, x948, x945);
-  x991 = (x990 + x946);
+  x991 = (uint32_t)((fiat_p384_uint1)x990 + (uint32_t)x946);
   fiat_p384_addcarryx_u32(&x992, &x993, 0x0, x920, x967);
   fiat_p384_addcarryx_u32(&x994, &x995, x993, x922, x969);
   fiat_p384_addcarryx_u32(&x996, &x997, x995, x924, x971);
@@ -2370,7 +2370,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1048, &x1049, x1047, x1025, x1022);
   fiat_p384_addcarryx_u32(&x1050, &x1051, x1049, x1023, x1020);
   fiat_p384_addcarryx_u32(&x1052, &x1053, x1051, x1021, x1018);
-  x1054 = (x1053 + x1019);
+  x1054 = (uint32_t)((fiat_p384_uint1)x1053 + (uint32_t)x1019);
   fiat_p384_addcarryx_u32(&x1055, &x1056, 0x0, x992, x1036);
   fiat_p384_addcarryx_u32(&x1057, &x1058, x1056, x994, x1037);
   fiat_p384_addcarryx_u32(&x1059, &x1060, x1058, x996, 0x0);
@@ -2384,7 +2384,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1075, &x1076, x1074, x1012, x1050);
   fiat_p384_addcarryx_u32(&x1077, &x1078, x1076, x1014, x1052);
   fiat_p384_addcarryx_u32(&x1079, &x1080, x1078, x1016, x1054);
-  x1081 = ((uint32_t)x1080 + x1017);
+  x1081 = (uint32_t)((fiat_p384_uint1)x1080 + (fiat_p384_uint1)x1017);
   fiat_p384_mulx_u32(&x1082, &x1083, x8, (arg2[11]));
   fiat_p384_mulx_u32(&x1084, &x1085, x8, (arg2[10]));
   fiat_p384_mulx_u32(&x1086, &x1087, x8, (arg2[9]));
@@ -2408,7 +2408,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1122, &x1123, x1121, x1089, x1086);
   fiat_p384_addcarryx_u32(&x1124, &x1125, x1123, x1087, x1084);
   fiat_p384_addcarryx_u32(&x1126, &x1127, x1125, x1085, x1082);
-  x1128 = (x1127 + x1083);
+  x1128 = (uint32_t)((fiat_p384_uint1)x1127 + (uint32_t)x1083);
   fiat_p384_addcarryx_u32(&x1129, &x1130, 0x0, x1057, x1104);
   fiat_p384_addcarryx_u32(&x1131, &x1132, x1130, x1059, x1106);
   fiat_p384_addcarryx_u32(&x1133, &x1134, x1132, x1061, x1108);
@@ -2440,7 +2440,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1185, &x1186, x1184, x1162, x1159);
   fiat_p384_addcarryx_u32(&x1187, &x1188, x1186, x1160, x1157);
   fiat_p384_addcarryx_u32(&x1189, &x1190, x1188, x1158, x1155);
-  x1191 = (x1190 + x1156);
+  x1191 = (uint32_t)((fiat_p384_uint1)x1190 + (uint32_t)x1156);
   fiat_p384_addcarryx_u32(&x1192, &x1193, 0x0, x1129, x1173);
   fiat_p384_addcarryx_u32(&x1194, &x1195, x1193, x1131, x1174);
   fiat_p384_addcarryx_u32(&x1196, &x1197, x1195, x1133, 0x0);
@@ -2454,7 +2454,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1212, &x1213, x1211, x1149, x1187);
   fiat_p384_addcarryx_u32(&x1214, &x1215, x1213, x1151, x1189);
   fiat_p384_addcarryx_u32(&x1216, &x1217, x1215, x1153, x1191);
-  x1218 = ((uint32_t)x1217 + x1154);
+  x1218 = (uint32_t)((fiat_p384_uint1)x1217 + (fiat_p384_uint1)x1154);
   fiat_p384_mulx_u32(&x1219, &x1220, x9, (arg2[11]));
   fiat_p384_mulx_u32(&x1221, &x1222, x9, (arg2[10]));
   fiat_p384_mulx_u32(&x1223, &x1224, x9, (arg2[9]));
@@ -2478,7 +2478,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1259, &x1260, x1258, x1226, x1223);
   fiat_p384_addcarryx_u32(&x1261, &x1262, x1260, x1224, x1221);
   fiat_p384_addcarryx_u32(&x1263, &x1264, x1262, x1222, x1219);
-  x1265 = (x1264 + x1220);
+  x1265 = (uint32_t)((fiat_p384_uint1)x1264 + (uint32_t)x1220);
   fiat_p384_addcarryx_u32(&x1266, &x1267, 0x0, x1194, x1241);
   fiat_p384_addcarryx_u32(&x1268, &x1269, x1267, x1196, x1243);
   fiat_p384_addcarryx_u32(&x1270, &x1271, x1269, x1198, x1245);
@@ -2510,7 +2510,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1322, &x1323, x1321, x1299, x1296);
   fiat_p384_addcarryx_u32(&x1324, &x1325, x1323, x1297, x1294);
   fiat_p384_addcarryx_u32(&x1326, &x1327, x1325, x1295, x1292);
-  x1328 = (x1327 + x1293);
+  x1328 = (uint32_t)((fiat_p384_uint1)x1327 + (uint32_t)x1293);
   fiat_p384_addcarryx_u32(&x1329, &x1330, 0x0, x1266, x1310);
   fiat_p384_addcarryx_u32(&x1331, &x1332, x1330, x1268, x1311);
   fiat_p384_addcarryx_u32(&x1333, &x1334, x1332, x1270, 0x0);
@@ -2524,7 +2524,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1349, &x1350, x1348, x1286, x1324);
   fiat_p384_addcarryx_u32(&x1351, &x1352, x1350, x1288, x1326);
   fiat_p384_addcarryx_u32(&x1353, &x1354, x1352, x1290, x1328);
-  x1355 = ((uint32_t)x1354 + x1291);
+  x1355 = (uint32_t)((fiat_p384_uint1)x1354 + (fiat_p384_uint1)x1291);
   fiat_p384_mulx_u32(&x1356, &x1357, x10, (arg2[11]));
   fiat_p384_mulx_u32(&x1358, &x1359, x10, (arg2[10]));
   fiat_p384_mulx_u32(&x1360, &x1361, x10, (arg2[9]));
@@ -2548,7 +2548,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1396, &x1397, x1395, x1363, x1360);
   fiat_p384_addcarryx_u32(&x1398, &x1399, x1397, x1361, x1358);
   fiat_p384_addcarryx_u32(&x1400, &x1401, x1399, x1359, x1356);
-  x1402 = (x1401 + x1357);
+  x1402 = (uint32_t)((fiat_p384_uint1)x1401 + (uint32_t)x1357);
   fiat_p384_addcarryx_u32(&x1403, &x1404, 0x0, x1331, x1378);
   fiat_p384_addcarryx_u32(&x1405, &x1406, x1404, x1333, x1380);
   fiat_p384_addcarryx_u32(&x1407, &x1408, x1406, x1335, x1382);
@@ -2580,7 +2580,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1459, &x1460, x1458, x1436, x1433);
   fiat_p384_addcarryx_u32(&x1461, &x1462, x1460, x1434, x1431);
   fiat_p384_addcarryx_u32(&x1463, &x1464, x1462, x1432, x1429);
-  x1465 = (x1464 + x1430);
+  x1465 = (uint32_t)((fiat_p384_uint1)x1464 + (uint32_t)x1430);
   fiat_p384_addcarryx_u32(&x1466, &x1467, 0x0, x1403, x1447);
   fiat_p384_addcarryx_u32(&x1468, &x1469, x1467, x1405, x1448);
   fiat_p384_addcarryx_u32(&x1470, &x1471, x1469, x1407, 0x0);
@@ -2594,7 +2594,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1486, &x1487, x1485, x1423, x1461);
   fiat_p384_addcarryx_u32(&x1488, &x1489, x1487, x1425, x1463);
   fiat_p384_addcarryx_u32(&x1490, &x1491, x1489, x1427, x1465);
-  x1492 = ((uint32_t)x1491 + x1428);
+  x1492 = (uint32_t)((fiat_p384_uint1)x1491 + (fiat_p384_uint1)x1428);
   fiat_p384_mulx_u32(&x1493, &x1494, x11, (arg2[11]));
   fiat_p384_mulx_u32(&x1495, &x1496, x11, (arg2[10]));
   fiat_p384_mulx_u32(&x1497, &x1498, x11, (arg2[9]));
@@ -2618,7 +2618,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1533, &x1534, x1532, x1500, x1497);
   fiat_p384_addcarryx_u32(&x1535, &x1536, x1534, x1498, x1495);
   fiat_p384_addcarryx_u32(&x1537, &x1538, x1536, x1496, x1493);
-  x1539 = (x1538 + x1494);
+  x1539 = (uint32_t)((fiat_p384_uint1)x1538 + (uint32_t)x1494);
   fiat_p384_addcarryx_u32(&x1540, &x1541, 0x0, x1468, x1515);
   fiat_p384_addcarryx_u32(&x1542, &x1543, x1541, x1470, x1517);
   fiat_p384_addcarryx_u32(&x1544, &x1545, x1543, x1472, x1519);
@@ -2650,7 +2650,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1596, &x1597, x1595, x1573, x1570);
   fiat_p384_addcarryx_u32(&x1598, &x1599, x1597, x1571, x1568);
   fiat_p384_addcarryx_u32(&x1600, &x1601, x1599, x1569, x1566);
-  x1602 = (x1601 + x1567);
+  x1602 = (uint32_t)((fiat_p384_uint1)x1601 + (uint32_t)x1567);
   fiat_p384_addcarryx_u32(&x1603, &x1604, 0x0, x1540, x1584);
   fiat_p384_addcarryx_u32(&x1605, &x1606, x1604, x1542, x1585);
   fiat_p384_addcarryx_u32(&x1607, &x1608, x1606, x1544, 0x0);
@@ -2664,7 +2664,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_mul(fiat_p384_montgomery_domain_fiel
   fiat_p384_addcarryx_u32(&x1623, &x1624, x1622, x1560, x1598);
   fiat_p384_addcarryx_u32(&x1625, &x1626, x1624, x1562, x1600);
   fiat_p384_addcarryx_u32(&x1627, &x1628, x1626, x1564, x1602);
-  x1629 = ((uint32_t)x1628 + x1565);
+  x1629 = (uint32_t)((fiat_p384_uint1)x1628 + (fiat_p384_uint1)x1565);
   fiat_p384_subborrowx_u32(&x1630, &x1631, 0x0, x1605, UINT32_C(0xffffffff));
   fiat_p384_subborrowx_u32(&x1632, &x1633, x1631, x1607, 0x0);
   fiat_p384_subborrowx_u32(&x1634, &x1635, x1633, x1609, 0x0);
@@ -4417,7 +4417,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x53, &x54, x52, x20, x17);
   fiat_p384_addcarryx_u32(&x55, &x56, x54, x18, x15);
   fiat_p384_addcarryx_u32(&x57, &x58, x56, x16, x13);
-  x59 = (x58 + x14);
+  x59 = (uint32_t)((fiat_p384_uint1)x58 + (uint32_t)x14);
   fiat_p384_mulx_u32(&x60, &x61, x35, UINT32_C(0xffffffff));
   fiat_p384_mulx_u32(&x62, &x63, x35, UINT32_C(0xffffffff));
   fiat_p384_mulx_u32(&x64, &x65, x35, UINT32_C(0xffffffff));
@@ -4436,7 +4436,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x90, &x91, x89, x67, x64);
   fiat_p384_addcarryx_u32(&x92, &x93, x91, x65, x62);
   fiat_p384_addcarryx_u32(&x94, &x95, x93, x63, x60);
-  x96 = (x95 + x61);
+  x96 = (uint32_t)((fiat_p384_uint1)x95 + (uint32_t)x61);
   fiat_p384_addcarryx_u32(&x97, &x98, 0x0, x35, x78);
   fiat_p384_addcarryx_u32(&x99, &x100, x98, x37, x79);
   fiat_p384_addcarryx_u32(&x101, &x102, x100, x39, 0x0);
@@ -4473,7 +4473,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x163, &x164, x162, x130, x127);
   fiat_p384_addcarryx_u32(&x165, &x166, x164, x128, x125);
   fiat_p384_addcarryx_u32(&x167, &x168, x166, x126, x123);
-  x169 = (x168 + x124);
+  x169 = (uint32_t)((fiat_p384_uint1)x168 + (uint32_t)x124);
   fiat_p384_addcarryx_u32(&x170, &x171, 0x0, x99, x145);
   fiat_p384_addcarryx_u32(&x172, &x173, x171, x101, x147);
   fiat_p384_addcarryx_u32(&x174, &x175, x173, x103, x149);
@@ -4505,7 +4505,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x226, &x227, x225, x203, x200);
   fiat_p384_addcarryx_u32(&x228, &x229, x227, x201, x198);
   fiat_p384_addcarryx_u32(&x230, &x231, x229, x199, x196);
-  x232 = (x231 + x197);
+  x232 = (uint32_t)((fiat_p384_uint1)x231 + (uint32_t)x197);
   fiat_p384_addcarryx_u32(&x233, &x234, 0x0, x170, x214);
   fiat_p384_addcarryx_u32(&x235, &x236, x234, x172, x215);
   fiat_p384_addcarryx_u32(&x237, &x238, x236, x174, 0x0);
@@ -4519,7 +4519,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x253, &x254, x252, x190, x228);
   fiat_p384_addcarryx_u32(&x255, &x256, x254, x192, x230);
   fiat_p384_addcarryx_u32(&x257, &x258, x256, x194, x232);
-  x259 = ((uint32_t)x258 + x195);
+  x259 = (uint32_t)((fiat_p384_uint1)x258 + (fiat_p384_uint1)x195);
   fiat_p384_mulx_u32(&x260, &x261, x2, (arg1[11]));
   fiat_p384_mulx_u32(&x262, &x263, x2, (arg1[10]));
   fiat_p384_mulx_u32(&x264, &x265, x2, (arg1[9]));
@@ -4543,7 +4543,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x300, &x301, x299, x267, x264);
   fiat_p384_addcarryx_u32(&x302, &x303, x301, x265, x262);
   fiat_p384_addcarryx_u32(&x304, &x305, x303, x263, x260);
-  x306 = (x305 + x261);
+  x306 = (uint32_t)((fiat_p384_uint1)x305 + (uint32_t)x261);
   fiat_p384_addcarryx_u32(&x307, &x308, 0x0, x235, x282);
   fiat_p384_addcarryx_u32(&x309, &x310, x308, x237, x284);
   fiat_p384_addcarryx_u32(&x311, &x312, x310, x239, x286);
@@ -4575,7 +4575,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x363, &x364, x362, x340, x337);
   fiat_p384_addcarryx_u32(&x365, &x366, x364, x338, x335);
   fiat_p384_addcarryx_u32(&x367, &x368, x366, x336, x333);
-  x369 = (x368 + x334);
+  x369 = (uint32_t)((fiat_p384_uint1)x368 + (uint32_t)x334);
   fiat_p384_addcarryx_u32(&x370, &x371, 0x0, x307, x351);
   fiat_p384_addcarryx_u32(&x372, &x373, x371, x309, x352);
   fiat_p384_addcarryx_u32(&x374, &x375, x373, x311, 0x0);
@@ -4589,7 +4589,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x390, &x391, x389, x327, x365);
   fiat_p384_addcarryx_u32(&x392, &x393, x391, x329, x367);
   fiat_p384_addcarryx_u32(&x394, &x395, x393, x331, x369);
-  x396 = ((uint32_t)x395 + x332);
+  x396 = (uint32_t)((fiat_p384_uint1)x395 + (fiat_p384_uint1)x332);
   fiat_p384_mulx_u32(&x397, &x398, x3, (arg1[11]));
   fiat_p384_mulx_u32(&x399, &x400, x3, (arg1[10]));
   fiat_p384_mulx_u32(&x401, &x402, x3, (arg1[9]));
@@ -4613,7 +4613,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x437, &x438, x436, x404, x401);
   fiat_p384_addcarryx_u32(&x439, &x440, x438, x402, x399);
   fiat_p384_addcarryx_u32(&x441, &x442, x440, x400, x397);
-  x443 = (x442 + x398);
+  x443 = (uint32_t)((fiat_p384_uint1)x442 + (uint32_t)x398);
   fiat_p384_addcarryx_u32(&x444, &x445, 0x0, x372, x419);
   fiat_p384_addcarryx_u32(&x446, &x447, x445, x374, x421);
   fiat_p384_addcarryx_u32(&x448, &x449, x447, x376, x423);
@@ -4645,7 +4645,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x500, &x501, x499, x477, x474);
   fiat_p384_addcarryx_u32(&x502, &x503, x501, x475, x472);
   fiat_p384_addcarryx_u32(&x504, &x505, x503, x473, x470);
-  x506 = (x505 + x471);
+  x506 = (uint32_t)((fiat_p384_uint1)x505 + (uint32_t)x471);
   fiat_p384_addcarryx_u32(&x507, &x508, 0x0, x444, x488);
   fiat_p384_addcarryx_u32(&x509, &x510, x508, x446, x489);
   fiat_p384_addcarryx_u32(&x511, &x512, x510, x448, 0x0);
@@ -4659,7 +4659,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x527, &x528, x526, x464, x502);
   fiat_p384_addcarryx_u32(&x529, &x530, x528, x466, x504);
   fiat_p384_addcarryx_u32(&x531, &x532, x530, x468, x506);
-  x533 = ((uint32_t)x532 + x469);
+  x533 = (uint32_t)((fiat_p384_uint1)x532 + (fiat_p384_uint1)x469);
   fiat_p384_mulx_u32(&x534, &x535, x4, (arg1[11]));
   fiat_p384_mulx_u32(&x536, &x537, x4, (arg1[10]));
   fiat_p384_mulx_u32(&x538, &x539, x4, (arg1[9]));
@@ -4683,7 +4683,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x574, &x575, x573, x541, x538);
   fiat_p384_addcarryx_u32(&x576, &x577, x575, x539, x536);
   fiat_p384_addcarryx_u32(&x578, &x579, x577, x537, x534);
-  x580 = (x579 + x535);
+  x580 = (uint32_t)((fiat_p384_uint1)x579 + (uint32_t)x535);
   fiat_p384_addcarryx_u32(&x581, &x582, 0x0, x509, x556);
   fiat_p384_addcarryx_u32(&x583, &x584, x582, x511, x558);
   fiat_p384_addcarryx_u32(&x585, &x586, x584, x513, x560);
@@ -4715,7 +4715,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x637, &x638, x636, x614, x611);
   fiat_p384_addcarryx_u32(&x639, &x640, x638, x612, x609);
   fiat_p384_addcarryx_u32(&x641, &x642, x640, x610, x607);
-  x643 = (x642 + x608);
+  x643 = (uint32_t)((fiat_p384_uint1)x642 + (uint32_t)x608);
   fiat_p384_addcarryx_u32(&x644, &x645, 0x0, x581, x625);
   fiat_p384_addcarryx_u32(&x646, &x647, x645, x583, x626);
   fiat_p384_addcarryx_u32(&x648, &x649, x647, x585, 0x0);
@@ -4729,7 +4729,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x664, &x665, x663, x601, x639);
   fiat_p384_addcarryx_u32(&x666, &x667, x665, x603, x641);
   fiat_p384_addcarryx_u32(&x668, &x669, x667, x605, x643);
-  x670 = ((uint32_t)x669 + x606);
+  x670 = (uint32_t)((fiat_p384_uint1)x669 + (fiat_p384_uint1)x606);
   fiat_p384_mulx_u32(&x671, &x672, x5, (arg1[11]));
   fiat_p384_mulx_u32(&x673, &x674, x5, (arg1[10]));
   fiat_p384_mulx_u32(&x675, &x676, x5, (arg1[9]));
@@ -4753,7 +4753,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x711, &x712, x710, x678, x675);
   fiat_p384_addcarryx_u32(&x713, &x714, x712, x676, x673);
   fiat_p384_addcarryx_u32(&x715, &x716, x714, x674, x671);
-  x717 = (x716 + x672);
+  x717 = (uint32_t)((fiat_p384_uint1)x716 + (uint32_t)x672);
   fiat_p384_addcarryx_u32(&x718, &x719, 0x0, x646, x693);
   fiat_p384_addcarryx_u32(&x720, &x721, x719, x648, x695);
   fiat_p384_addcarryx_u32(&x722, &x723, x721, x650, x697);
@@ -4785,7 +4785,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x774, &x775, x773, x751, x748);
   fiat_p384_addcarryx_u32(&x776, &x777, x775, x749, x746);
   fiat_p384_addcarryx_u32(&x778, &x779, x777, x747, x744);
-  x780 = (x779 + x745);
+  x780 = (uint32_t)((fiat_p384_uint1)x779 + (uint32_t)x745);
   fiat_p384_addcarryx_u32(&x781, &x782, 0x0, x718, x762);
   fiat_p384_addcarryx_u32(&x783, &x784, x782, x720, x763);
   fiat_p384_addcarryx_u32(&x785, &x786, x784, x722, 0x0);
@@ -4799,7 +4799,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x801, &x802, x800, x738, x776);
   fiat_p384_addcarryx_u32(&x803, &x804, x802, x740, x778);
   fiat_p384_addcarryx_u32(&x805, &x806, x804, x742, x780);
-  x807 = ((uint32_t)x806 + x743);
+  x807 = (uint32_t)((fiat_p384_uint1)x806 + (fiat_p384_uint1)x743);
   fiat_p384_mulx_u32(&x808, &x809, x6, (arg1[11]));
   fiat_p384_mulx_u32(&x810, &x811, x6, (arg1[10]));
   fiat_p384_mulx_u32(&x812, &x813, x6, (arg1[9]));
@@ -4823,7 +4823,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x848, &x849, x847, x815, x812);
   fiat_p384_addcarryx_u32(&x850, &x851, x849, x813, x810);
   fiat_p384_addcarryx_u32(&x852, &x853, x851, x811, x808);
-  x854 = (x853 + x809);
+  x854 = (uint32_t)((fiat_p384_uint1)x853 + (uint32_t)x809);
   fiat_p384_addcarryx_u32(&x855, &x856, 0x0, x783, x830);
   fiat_p384_addcarryx_u32(&x857, &x858, x856, x785, x832);
   fiat_p384_addcarryx_u32(&x859, &x860, x858, x787, x834);
@@ -4855,7 +4855,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x911, &x912, x910, x888, x885);
   fiat_p384_addcarryx_u32(&x913, &x914, x912, x886, x883);
   fiat_p384_addcarryx_u32(&x915, &x916, x914, x884, x881);
-  x917 = (x916 + x882);
+  x917 = (uint32_t)((fiat_p384_uint1)x916 + (uint32_t)x882);
   fiat_p384_addcarryx_u32(&x918, &x919, 0x0, x855, x899);
   fiat_p384_addcarryx_u32(&x920, &x921, x919, x857, x900);
   fiat_p384_addcarryx_u32(&x922, &x923, x921, x859, 0x0);
@@ -4869,7 +4869,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x938, &x939, x937, x875, x913);
   fiat_p384_addcarryx_u32(&x940, &x941, x939, x877, x915);
   fiat_p384_addcarryx_u32(&x942, &x943, x941, x879, x917);
-  x944 = ((uint32_t)x943 + x880);
+  x944 = (uint32_t)((fiat_p384_uint1)x943 + (fiat_p384_uint1)x880);
   fiat_p384_mulx_u32(&x945, &x946, x7, (arg1[11]));
   fiat_p384_mulx_u32(&x947, &x948, x7, (arg1[10]));
   fiat_p384_mulx_u32(&x949, &x950, x7, (arg1[9]));
@@ -4893,7 +4893,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x985, &x986, x984, x952, x949);
   fiat_p384_addcarryx_u32(&x987, &x988, x986, x950, x947);
   fiat_p384_addcarryx_u32(&x989, &x990, x988, x948, x945);
-  x991 = (x990 + x946);
+  x991 = (uint32_t)((fiat_p384_uint1)x990 + (uint32_t)x946);
   fiat_p384_addcarryx_u32(&x992, &x993, 0x0, x920, x967);
   fiat_p384_addcarryx_u32(&x994, &x995, x993, x922, x969);
   fiat_p384_addcarryx_u32(&x996, &x997, x995, x924, x971);
@@ -4925,7 +4925,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1048, &x1049, x1047, x1025, x1022);
   fiat_p384_addcarryx_u32(&x1050, &x1051, x1049, x1023, x1020);
   fiat_p384_addcarryx_u32(&x1052, &x1053, x1051, x1021, x1018);
-  x1054 = (x1053 + x1019);
+  x1054 = (uint32_t)((fiat_p384_uint1)x1053 + (uint32_t)x1019);
   fiat_p384_addcarryx_u32(&x1055, &x1056, 0x0, x992, x1036);
   fiat_p384_addcarryx_u32(&x1057, &x1058, x1056, x994, x1037);
   fiat_p384_addcarryx_u32(&x1059, &x1060, x1058, x996, 0x0);
@@ -4939,7 +4939,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1075, &x1076, x1074, x1012, x1050);
   fiat_p384_addcarryx_u32(&x1077, &x1078, x1076, x1014, x1052);
   fiat_p384_addcarryx_u32(&x1079, &x1080, x1078, x1016, x1054);
-  x1081 = ((uint32_t)x1080 + x1017);
+  x1081 = (uint32_t)((fiat_p384_uint1)x1080 + (fiat_p384_uint1)x1017);
   fiat_p384_mulx_u32(&x1082, &x1083, x8, (arg1[11]));
   fiat_p384_mulx_u32(&x1084, &x1085, x8, (arg1[10]));
   fiat_p384_mulx_u32(&x1086, &x1087, x8, (arg1[9]));
@@ -4963,7 +4963,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1122, &x1123, x1121, x1089, x1086);
   fiat_p384_addcarryx_u32(&x1124, &x1125, x1123, x1087, x1084);
   fiat_p384_addcarryx_u32(&x1126, &x1127, x1125, x1085, x1082);
-  x1128 = (x1127 + x1083);
+  x1128 = (uint32_t)((fiat_p384_uint1)x1127 + (uint32_t)x1083);
   fiat_p384_addcarryx_u32(&x1129, &x1130, 0x0, x1057, x1104);
   fiat_p384_addcarryx_u32(&x1131, &x1132, x1130, x1059, x1106);
   fiat_p384_addcarryx_u32(&x1133, &x1134, x1132, x1061, x1108);
@@ -4995,7 +4995,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1185, &x1186, x1184, x1162, x1159);
   fiat_p384_addcarryx_u32(&x1187, &x1188, x1186, x1160, x1157);
   fiat_p384_addcarryx_u32(&x1189, &x1190, x1188, x1158, x1155);
-  x1191 = (x1190 + x1156);
+  x1191 = (uint32_t)((fiat_p384_uint1)x1190 + (uint32_t)x1156);
   fiat_p384_addcarryx_u32(&x1192, &x1193, 0x0, x1129, x1173);
   fiat_p384_addcarryx_u32(&x1194, &x1195, x1193, x1131, x1174);
   fiat_p384_addcarryx_u32(&x1196, &x1197, x1195, x1133, 0x0);
@@ -5009,7 +5009,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1212, &x1213, x1211, x1149, x1187);
   fiat_p384_addcarryx_u32(&x1214, &x1215, x1213, x1151, x1189);
   fiat_p384_addcarryx_u32(&x1216, &x1217, x1215, x1153, x1191);
-  x1218 = ((uint32_t)x1217 + x1154);
+  x1218 = (uint32_t)((fiat_p384_uint1)x1217 + (fiat_p384_uint1)x1154);
   fiat_p384_mulx_u32(&x1219, &x1220, x9, (arg1[11]));
   fiat_p384_mulx_u32(&x1221, &x1222, x9, (arg1[10]));
   fiat_p384_mulx_u32(&x1223, &x1224, x9, (arg1[9]));
@@ -5033,7 +5033,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1259, &x1260, x1258, x1226, x1223);
   fiat_p384_addcarryx_u32(&x1261, &x1262, x1260, x1224, x1221);
   fiat_p384_addcarryx_u32(&x1263, &x1264, x1262, x1222, x1219);
-  x1265 = (x1264 + x1220);
+  x1265 = (uint32_t)((fiat_p384_uint1)x1264 + (uint32_t)x1220);
   fiat_p384_addcarryx_u32(&x1266, &x1267, 0x0, x1194, x1241);
   fiat_p384_addcarryx_u32(&x1268, &x1269, x1267, x1196, x1243);
   fiat_p384_addcarryx_u32(&x1270, &x1271, x1269, x1198, x1245);
@@ -5065,7 +5065,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1322, &x1323, x1321, x1299, x1296);
   fiat_p384_addcarryx_u32(&x1324, &x1325, x1323, x1297, x1294);
   fiat_p384_addcarryx_u32(&x1326, &x1327, x1325, x1295, x1292);
-  x1328 = (x1327 + x1293);
+  x1328 = (uint32_t)((fiat_p384_uint1)x1327 + (uint32_t)x1293);
   fiat_p384_addcarryx_u32(&x1329, &x1330, 0x0, x1266, x1310);
   fiat_p384_addcarryx_u32(&x1331, &x1332, x1330, x1268, x1311);
   fiat_p384_addcarryx_u32(&x1333, &x1334, x1332, x1270, 0x0);
@@ -5079,7 +5079,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1349, &x1350, x1348, x1286, x1324);
   fiat_p384_addcarryx_u32(&x1351, &x1352, x1350, x1288, x1326);
   fiat_p384_addcarryx_u32(&x1353, &x1354, x1352, x1290, x1328);
-  x1355 = ((uint32_t)x1354 + x1291);
+  x1355 = (uint32_t)((fiat_p384_uint1)x1354 + (fiat_p384_uint1)x1291);
   fiat_p384_mulx_u32(&x1356, &x1357, x10, (arg1[11]));
   fiat_p384_mulx_u32(&x1358, &x1359, x10, (arg1[10]));
   fiat_p384_mulx_u32(&x1360, &x1361, x10, (arg1[9]));
@@ -5103,7 +5103,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1396, &x1397, x1395, x1363, x1360);
   fiat_p384_addcarryx_u32(&x1398, &x1399, x1397, x1361, x1358);
   fiat_p384_addcarryx_u32(&x1400, &x1401, x1399, x1359, x1356);
-  x1402 = (x1401 + x1357);
+  x1402 = (uint32_t)((fiat_p384_uint1)x1401 + (uint32_t)x1357);
   fiat_p384_addcarryx_u32(&x1403, &x1404, 0x0, x1331, x1378);
   fiat_p384_addcarryx_u32(&x1405, &x1406, x1404, x1333, x1380);
   fiat_p384_addcarryx_u32(&x1407, &x1408, x1406, x1335, x1382);
@@ -5135,7 +5135,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1459, &x1460, x1458, x1436, x1433);
   fiat_p384_addcarryx_u32(&x1461, &x1462, x1460, x1434, x1431);
   fiat_p384_addcarryx_u32(&x1463, &x1464, x1462, x1432, x1429);
-  x1465 = (x1464 + x1430);
+  x1465 = (uint32_t)((fiat_p384_uint1)x1464 + (uint32_t)x1430);
   fiat_p384_addcarryx_u32(&x1466, &x1467, 0x0, x1403, x1447);
   fiat_p384_addcarryx_u32(&x1468, &x1469, x1467, x1405, x1448);
   fiat_p384_addcarryx_u32(&x1470, &x1471, x1469, x1407, 0x0);
@@ -5149,7 +5149,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1486, &x1487, x1485, x1423, x1461);
   fiat_p384_addcarryx_u32(&x1488, &x1489, x1487, x1425, x1463);
   fiat_p384_addcarryx_u32(&x1490, &x1491, x1489, x1427, x1465);
-  x1492 = ((uint32_t)x1491 + x1428);
+  x1492 = (uint32_t)((fiat_p384_uint1)x1491 + (fiat_p384_uint1)x1428);
   fiat_p384_mulx_u32(&x1493, &x1494, x11, (arg1[11]));
   fiat_p384_mulx_u32(&x1495, &x1496, x11, (arg1[10]));
   fiat_p384_mulx_u32(&x1497, &x1498, x11, (arg1[9]));
@@ -5173,7 +5173,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1533, &x1534, x1532, x1500, x1497);
   fiat_p384_addcarryx_u32(&x1535, &x1536, x1534, x1498, x1495);
   fiat_p384_addcarryx_u32(&x1537, &x1538, x1536, x1496, x1493);
-  x1539 = (x1538 + x1494);
+  x1539 = (uint32_t)((fiat_p384_uint1)x1538 + (uint32_t)x1494);
   fiat_p384_addcarryx_u32(&x1540, &x1541, 0x0, x1468, x1515);
   fiat_p384_addcarryx_u32(&x1542, &x1543, x1541, x1470, x1517);
   fiat_p384_addcarryx_u32(&x1544, &x1545, x1543, x1472, x1519);
@@ -5205,7 +5205,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1596, &x1597, x1595, x1573, x1570);
   fiat_p384_addcarryx_u32(&x1598, &x1599, x1597, x1571, x1568);
   fiat_p384_addcarryx_u32(&x1600, &x1601, x1599, x1569, x1566);
-  x1602 = (x1601 + x1567);
+  x1602 = (uint32_t)((fiat_p384_uint1)x1601 + (uint32_t)x1567);
   fiat_p384_addcarryx_u32(&x1603, &x1604, 0x0, x1540, x1584);
   fiat_p384_addcarryx_u32(&x1605, &x1606, x1604, x1542, x1585);
   fiat_p384_addcarryx_u32(&x1607, &x1608, x1606, x1544, 0x0);
@@ -5219,7 +5219,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_square(fiat_p384_montgomery_domain_f
   fiat_p384_addcarryx_u32(&x1623, &x1624, x1622, x1560, x1598);
   fiat_p384_addcarryx_u32(&x1625, &x1626, x1624, x1562, x1600);
   fiat_p384_addcarryx_u32(&x1627, &x1628, x1626, x1564, x1602);
-  x1629 = ((uint32_t)x1628 + x1565);
+  x1629 = (uint32_t)((fiat_p384_uint1)x1628 + (fiat_p384_uint1)x1565);
   fiat_p384_subborrowx_u32(&x1630, &x1631, 0x0, x1605, UINT32_C(0xffffffff));
   fiat_p384_subborrowx_u32(&x1632, &x1633, x1631, x1607, 0x0);
   fiat_p384_subborrowx_u32(&x1634, &x1635, x1633, x1609, 0x0);
@@ -6615,7 +6615,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x34, &x35, x33, x7, x4);
   fiat_p384_addcarryx_u32(&x36, &x37, x35, x5, x2);
   fiat_p384_addcarryx_u32(&x38, &x39, 0x0, x1, x20);
-  fiat_p384_addcarryx_u32(&x40, &x41, 0x0, (x39 + x21), (arg1[1]));
+  fiat_p384_addcarryx_u32(&x40, &x41, 0x0, (uint32_t)((fiat_p384_uint1)x39 + (uint32_t)x21), (arg1[1]));
   fiat_p384_mulx_u32(&x42, &x43, x40, UINT32_C(0xffffffff));
   fiat_p384_mulx_u32(&x44, &x45, x40, UINT32_C(0xffffffff));
   fiat_p384_mulx_u32(&x46, &x47, x40, UINT32_C(0xffffffff));
@@ -6645,8 +6645,8 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x94, &x95, x93, x32, x70);
   fiat_p384_addcarryx_u32(&x96, &x97, x95, x34, x72);
   fiat_p384_addcarryx_u32(&x98, &x99, x97, x36, x74);
-  fiat_p384_addcarryx_u32(&x100, &x101, x99, (x37 + x3), x76);
-  fiat_p384_addcarryx_u32(&x102, &x103, x101, 0x0, (x77 + x43));
+  fiat_p384_addcarryx_u32(&x100, &x101, x99, (uint32_t)((fiat_p384_uint1)x37 + (uint32_t)x3), x76);
+  fiat_p384_addcarryx_u32(&x102, &x103, x101, 0x0, (uint32_t)((fiat_p384_uint1)x77 + (uint32_t)x43));
   fiat_p384_addcarryx_u32(&x104, &x105, 0x0, x80, (arg1[2]));
   fiat_p384_addcarryx_u32(&x106, &x107, x105, x82, 0x0);
   fiat_p384_addcarryx_u32(&x108, &x109, x107, x84, 0x0);
@@ -6689,7 +6689,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x182, &x183, x181, x122, x158);
   fiat_p384_addcarryx_u32(&x184, &x185, x183, x124, x160);
   fiat_p384_addcarryx_u32(&x186, &x187, x185, x126, x162);
-  fiat_p384_addcarryx_u32(&x188, &x189, x187, ((uint32_t)x127 + x103), (x163 + x129));
+  fiat_p384_addcarryx_u32(&x188, &x189, x187, (uint32_t)((fiat_p384_uint1)x127 + (fiat_p384_uint1)x103), (uint32_t)((fiat_p384_uint1)x163 + (uint32_t)x129));
   fiat_p384_addcarryx_u32(&x190, &x191, 0x0, x166, (arg1[3]));
   fiat_p384_addcarryx_u32(&x192, &x193, x191, x168, 0x0);
   fiat_p384_addcarryx_u32(&x194, &x195, x193, x170, 0x0);
@@ -6732,7 +6732,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x268, &x269, x267, x208, x244);
   fiat_p384_addcarryx_u32(&x270, &x271, x269, x210, x246);
   fiat_p384_addcarryx_u32(&x272, &x273, x271, x212, x248);
-  fiat_p384_addcarryx_u32(&x274, &x275, x273, ((uint32_t)x213 + x189), (x249 + x215));
+  fiat_p384_addcarryx_u32(&x274, &x275, x273, (uint32_t)((fiat_p384_uint1)x213 + (fiat_p384_uint1)x189), (uint32_t)((fiat_p384_uint1)x249 + (uint32_t)x215));
   fiat_p384_addcarryx_u32(&x276, &x277, 0x0, x252, (arg1[4]));
   fiat_p384_addcarryx_u32(&x278, &x279, x277, x254, 0x0);
   fiat_p384_addcarryx_u32(&x280, &x281, x279, x256, 0x0);
@@ -6775,7 +6775,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x354, &x355, x353, x294, x330);
   fiat_p384_addcarryx_u32(&x356, &x357, x355, x296, x332);
   fiat_p384_addcarryx_u32(&x358, &x359, x357, x298, x334);
-  fiat_p384_addcarryx_u32(&x360, &x361, x359, ((uint32_t)x299 + x275), (x335 + x301));
+  fiat_p384_addcarryx_u32(&x360, &x361, x359, (uint32_t)((fiat_p384_uint1)x299 + (fiat_p384_uint1)x275), (uint32_t)((fiat_p384_uint1)x335 + (uint32_t)x301));
   fiat_p384_addcarryx_u32(&x362, &x363, 0x0, x338, (arg1[5]));
   fiat_p384_addcarryx_u32(&x364, &x365, x363, x340, 0x0);
   fiat_p384_addcarryx_u32(&x366, &x367, x365, x342, 0x0);
@@ -6818,7 +6818,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x440, &x441, x439, x380, x416);
   fiat_p384_addcarryx_u32(&x442, &x443, x441, x382, x418);
   fiat_p384_addcarryx_u32(&x444, &x445, x443, x384, x420);
-  fiat_p384_addcarryx_u32(&x446, &x447, x445, ((uint32_t)x385 + x361), (x421 + x387));
+  fiat_p384_addcarryx_u32(&x446, &x447, x445, (uint32_t)((fiat_p384_uint1)x385 + (fiat_p384_uint1)x361), (uint32_t)((fiat_p384_uint1)x421 + (uint32_t)x387));
   fiat_p384_addcarryx_u32(&x448, &x449, 0x0, x424, (arg1[6]));
   fiat_p384_addcarryx_u32(&x450, &x451, x449, x426, 0x0);
   fiat_p384_addcarryx_u32(&x452, &x453, x451, x428, 0x0);
@@ -6861,7 +6861,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x526, &x527, x525, x466, x502);
   fiat_p384_addcarryx_u32(&x528, &x529, x527, x468, x504);
   fiat_p384_addcarryx_u32(&x530, &x531, x529, x470, x506);
-  fiat_p384_addcarryx_u32(&x532, &x533, x531, ((uint32_t)x471 + x447), (x507 + x473));
+  fiat_p384_addcarryx_u32(&x532, &x533, x531, (uint32_t)((fiat_p384_uint1)x471 + (fiat_p384_uint1)x447), (uint32_t)((fiat_p384_uint1)x507 + (uint32_t)x473));
   fiat_p384_addcarryx_u32(&x534, &x535, 0x0, x510, (arg1[7]));
   fiat_p384_addcarryx_u32(&x536, &x537, x535, x512, 0x0);
   fiat_p384_addcarryx_u32(&x538, &x539, x537, x514, 0x0);
@@ -6904,7 +6904,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x612, &x613, x611, x552, x588);
   fiat_p384_addcarryx_u32(&x614, &x615, x613, x554, x590);
   fiat_p384_addcarryx_u32(&x616, &x617, x615, x556, x592);
-  fiat_p384_addcarryx_u32(&x618, &x619, x617, ((uint32_t)x557 + x533), (x593 + x559));
+  fiat_p384_addcarryx_u32(&x618, &x619, x617, (uint32_t)((fiat_p384_uint1)x557 + (fiat_p384_uint1)x533), (uint32_t)((fiat_p384_uint1)x593 + (uint32_t)x559));
   fiat_p384_addcarryx_u32(&x620, &x621, 0x0, x596, (arg1[8]));
   fiat_p384_addcarryx_u32(&x622, &x623, x621, x598, 0x0);
   fiat_p384_addcarryx_u32(&x624, &x625, x623, x600, 0x0);
@@ -6947,7 +6947,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x698, &x699, x697, x638, x674);
   fiat_p384_addcarryx_u32(&x700, &x701, x699, x640, x676);
   fiat_p384_addcarryx_u32(&x702, &x703, x701, x642, x678);
-  fiat_p384_addcarryx_u32(&x704, &x705, x703, ((uint32_t)x643 + x619), (x679 + x645));
+  fiat_p384_addcarryx_u32(&x704, &x705, x703, (uint32_t)((fiat_p384_uint1)x643 + (fiat_p384_uint1)x619), (uint32_t)((fiat_p384_uint1)x679 + (uint32_t)x645));
   fiat_p384_addcarryx_u32(&x706, &x707, 0x0, x682, (arg1[9]));
   fiat_p384_addcarryx_u32(&x708, &x709, x707, x684, 0x0);
   fiat_p384_addcarryx_u32(&x710, &x711, x709, x686, 0x0);
@@ -6990,7 +6990,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x784, &x785, x783, x724, x760);
   fiat_p384_addcarryx_u32(&x786, &x787, x785, x726, x762);
   fiat_p384_addcarryx_u32(&x788, &x789, x787, x728, x764);
-  fiat_p384_addcarryx_u32(&x790, &x791, x789, ((uint32_t)x729 + x705), (x765 + x731));
+  fiat_p384_addcarryx_u32(&x790, &x791, x789, (uint32_t)((fiat_p384_uint1)x729 + (fiat_p384_uint1)x705), (uint32_t)((fiat_p384_uint1)x765 + (uint32_t)x731));
   fiat_p384_addcarryx_u32(&x792, &x793, 0x0, x768, (arg1[10]));
   fiat_p384_addcarryx_u32(&x794, &x795, x793, x770, 0x0);
   fiat_p384_addcarryx_u32(&x796, &x797, x795, x772, 0x0);
@@ -7033,7 +7033,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x870, &x871, x869, x810, x846);
   fiat_p384_addcarryx_u32(&x872, &x873, x871, x812, x848);
   fiat_p384_addcarryx_u32(&x874, &x875, x873, x814, x850);
-  fiat_p384_addcarryx_u32(&x876, &x877, x875, ((uint32_t)x815 + x791), (x851 + x817));
+  fiat_p384_addcarryx_u32(&x876, &x877, x875, (uint32_t)((fiat_p384_uint1)x815 + (fiat_p384_uint1)x791), (uint32_t)((fiat_p384_uint1)x851 + (uint32_t)x817));
   fiat_p384_addcarryx_u32(&x878, &x879, 0x0, x854, (arg1[11]));
   fiat_p384_addcarryx_u32(&x880, &x881, x879, x856, 0x0);
   fiat_p384_addcarryx_u32(&x882, &x883, x881, x858, 0x0);
@@ -7076,7 +7076,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_from_montgomery(fiat_p384_non_montgo
   fiat_p384_addcarryx_u32(&x956, &x957, x955, x896, x932);
   fiat_p384_addcarryx_u32(&x958, &x959, x957, x898, x934);
   fiat_p384_addcarryx_u32(&x960, &x961, x959, x900, x936);
-  fiat_p384_addcarryx_u32(&x962, &x963, x961, ((uint32_t)x901 + x877), (x937 + x903));
+  fiat_p384_addcarryx_u32(&x962, &x963, x961, (uint32_t)((fiat_p384_uint1)x901 + (fiat_p384_uint1)x877), (uint32_t)((fiat_p384_uint1)x937 + (uint32_t)x903));
   fiat_p384_subborrowx_u32(&x964, &x965, 0x0, x940, UINT32_C(0xffffffff));
   fiat_p384_subborrowx_u32(&x966, &x967, x965, x942, 0x0);
   fiat_p384_subborrowx_u32(&x968, &x969, x967, x944, 0x0);
@@ -8349,14 +8349,14 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x75, &x76, x74, x22, x53);
   fiat_p384_addcarryx_u32(&x77, &x78, x76, 0x0, x55);
   fiat_p384_addcarryx_u32(&x79, &x80, x78, 0x0, x57);
-  fiat_p384_addcarryx_u32(&x81, &x82, x80, 0x0, (x58 + x24));
+  fiat_p384_addcarryx_u32(&x81, &x82, x80, 0x0, (uint32_t)((fiat_p384_uint1)x58 + (uint32_t)x24));
   fiat_p384_mulx_u32(&x83, &x84, x1, 0x2);
   fiat_p384_mulx_u32(&x85, &x86, x1, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x87, &x88, x1, 0x2);
   fiat_p384_mulx_u32(&x89, &x90, x1, UINT32_C(0xfffffffe));
   fiat_p384_addcarryx_u32(&x91, &x92, 0x0, (fiat_p384_uint1)x84, x1);
   fiat_p384_addcarryx_u32(&x93, &x94, 0x0, x61, x1);
-  fiat_p384_addcarryx_u32(&x95, &x96, x94, (x62 + x20), x89);
+  fiat_p384_addcarryx_u32(&x95, &x96, x94, (uint32_t)((fiat_p384_uint1)x62 + (uint32_t)x20), x89);
   fiat_p384_addcarryx_u32(&x97, &x98, x96, x63, x90);
   fiat_p384_addcarryx_u32(&x99, &x100, x98, x65, x87);
   fiat_p384_addcarryx_u32(&x101, &x102, x100, x67, (fiat_p384_uint1)x88);
@@ -8397,7 +8397,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x171, &x172, x170, x111, x147);
   fiat_p384_addcarryx_u32(&x173, &x174, x172, x113, x149);
   fiat_p384_addcarryx_u32(&x175, &x176, x174, x115, x151);
-  fiat_p384_addcarryx_u32(&x177, &x178, x176, ((uint32_t)x116 + x82), (x152 + x118));
+  fiat_p384_addcarryx_u32(&x177, &x178, x176, (uint32_t)((fiat_p384_uint1)x116 + (fiat_p384_uint1)x82), (uint32_t)((fiat_p384_uint1)x152 + (uint32_t)x118));
   fiat_p384_mulx_u32(&x179, &x180, x2, 0x2);
   fiat_p384_mulx_u32(&x181, &x182, x2, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x183, &x184, x2, 0x2);
@@ -8445,7 +8445,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x267, &x268, x266, x207, x243);
   fiat_p384_addcarryx_u32(&x269, &x270, x268, x209, x245);
   fiat_p384_addcarryx_u32(&x271, &x272, x270, x211, x247);
-  fiat_p384_addcarryx_u32(&x273, &x274, x272, ((uint32_t)x212 + x178), (x248 + x214));
+  fiat_p384_addcarryx_u32(&x273, &x274, x272, (uint32_t)((fiat_p384_uint1)x212 + (fiat_p384_uint1)x178), (uint32_t)((fiat_p384_uint1)x248 + (uint32_t)x214));
   fiat_p384_mulx_u32(&x275, &x276, x3, 0x2);
   fiat_p384_mulx_u32(&x277, &x278, x3, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x279, &x280, x3, 0x2);
@@ -8493,7 +8493,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x363, &x364, x362, x303, x339);
   fiat_p384_addcarryx_u32(&x365, &x366, x364, x305, x341);
   fiat_p384_addcarryx_u32(&x367, &x368, x366, x307, x343);
-  fiat_p384_addcarryx_u32(&x369, &x370, x368, ((uint32_t)x308 + x274), (x344 + x310));
+  fiat_p384_addcarryx_u32(&x369, &x370, x368, (uint32_t)((fiat_p384_uint1)x308 + (fiat_p384_uint1)x274), (uint32_t)((fiat_p384_uint1)x344 + (uint32_t)x310));
   fiat_p384_mulx_u32(&x371, &x372, x4, 0x2);
   fiat_p384_mulx_u32(&x373, &x374, x4, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x375, &x376, x4, 0x2);
@@ -8541,7 +8541,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x459, &x460, x458, x399, x435);
   fiat_p384_addcarryx_u32(&x461, &x462, x460, x401, x437);
   fiat_p384_addcarryx_u32(&x463, &x464, x462, x403, x439);
-  fiat_p384_addcarryx_u32(&x465, &x466, x464, ((uint32_t)x404 + x370), (x440 + x406));
+  fiat_p384_addcarryx_u32(&x465, &x466, x464, (uint32_t)((fiat_p384_uint1)x404 + (fiat_p384_uint1)x370), (uint32_t)((fiat_p384_uint1)x440 + (uint32_t)x406));
   fiat_p384_mulx_u32(&x467, &x468, x5, 0x2);
   fiat_p384_mulx_u32(&x469, &x470, x5, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x471, &x472, x5, 0x2);
@@ -8589,7 +8589,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x555, &x556, x554, x495, x531);
   fiat_p384_addcarryx_u32(&x557, &x558, x556, x497, x533);
   fiat_p384_addcarryx_u32(&x559, &x560, x558, x499, x535);
-  fiat_p384_addcarryx_u32(&x561, &x562, x560, ((uint32_t)x500 + x466), (x536 + x502));
+  fiat_p384_addcarryx_u32(&x561, &x562, x560, (uint32_t)((fiat_p384_uint1)x500 + (fiat_p384_uint1)x466), (uint32_t)((fiat_p384_uint1)x536 + (uint32_t)x502));
   fiat_p384_mulx_u32(&x563, &x564, x6, 0x2);
   fiat_p384_mulx_u32(&x565, &x566, x6, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x567, &x568, x6, 0x2);
@@ -8637,7 +8637,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x651, &x652, x650, x591, x627);
   fiat_p384_addcarryx_u32(&x653, &x654, x652, x593, x629);
   fiat_p384_addcarryx_u32(&x655, &x656, x654, x595, x631);
-  fiat_p384_addcarryx_u32(&x657, &x658, x656, ((uint32_t)x596 + x562), (x632 + x598));
+  fiat_p384_addcarryx_u32(&x657, &x658, x656, (uint32_t)((fiat_p384_uint1)x596 + (fiat_p384_uint1)x562), (uint32_t)((fiat_p384_uint1)x632 + (uint32_t)x598));
   fiat_p384_mulx_u32(&x659, &x660, x7, 0x2);
   fiat_p384_mulx_u32(&x661, &x662, x7, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x663, &x664, x7, 0x2);
@@ -8685,7 +8685,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x747, &x748, x746, x687, x723);
   fiat_p384_addcarryx_u32(&x749, &x750, x748, x689, x725);
   fiat_p384_addcarryx_u32(&x751, &x752, x750, x691, x727);
-  fiat_p384_addcarryx_u32(&x753, &x754, x752, ((uint32_t)x692 + x658), (x728 + x694));
+  fiat_p384_addcarryx_u32(&x753, &x754, x752, (uint32_t)((fiat_p384_uint1)x692 + (fiat_p384_uint1)x658), (uint32_t)((fiat_p384_uint1)x728 + (uint32_t)x694));
   fiat_p384_mulx_u32(&x755, &x756, x8, 0x2);
   fiat_p384_mulx_u32(&x757, &x758, x8, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x759, &x760, x8, 0x2);
@@ -8733,7 +8733,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x843, &x844, x842, x783, x819);
   fiat_p384_addcarryx_u32(&x845, &x846, x844, x785, x821);
   fiat_p384_addcarryx_u32(&x847, &x848, x846, x787, x823);
-  fiat_p384_addcarryx_u32(&x849, &x850, x848, ((uint32_t)x788 + x754), (x824 + x790));
+  fiat_p384_addcarryx_u32(&x849, &x850, x848, (uint32_t)((fiat_p384_uint1)x788 + (fiat_p384_uint1)x754), (uint32_t)((fiat_p384_uint1)x824 + (uint32_t)x790));
   fiat_p384_mulx_u32(&x851, &x852, x9, 0x2);
   fiat_p384_mulx_u32(&x853, &x854, x9, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x855, &x856, x9, 0x2);
@@ -8781,7 +8781,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x939, &x940, x938, x879, x915);
   fiat_p384_addcarryx_u32(&x941, &x942, x940, x881, x917);
   fiat_p384_addcarryx_u32(&x943, &x944, x942, x883, x919);
-  fiat_p384_addcarryx_u32(&x945, &x946, x944, ((uint32_t)x884 + x850), (x920 + x886));
+  fiat_p384_addcarryx_u32(&x945, &x946, x944, (uint32_t)((fiat_p384_uint1)x884 + (fiat_p384_uint1)x850), (uint32_t)((fiat_p384_uint1)x920 + (uint32_t)x886));
   fiat_p384_mulx_u32(&x947, &x948, x10, 0x2);
   fiat_p384_mulx_u32(&x949, &x950, x10, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x951, &x952, x10, 0x2);
@@ -8829,7 +8829,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x1035, &x1036, x1034, x975, x1011);
   fiat_p384_addcarryx_u32(&x1037, &x1038, x1036, x977, x1013);
   fiat_p384_addcarryx_u32(&x1039, &x1040, x1038, x979, x1015);
-  fiat_p384_addcarryx_u32(&x1041, &x1042, x1040, ((uint32_t)x980 + x946), (x1016 + x982));
+  fiat_p384_addcarryx_u32(&x1041, &x1042, x1040, (uint32_t)((fiat_p384_uint1)x980 + (fiat_p384_uint1)x946), (uint32_t)((fiat_p384_uint1)x1016 + (uint32_t)x982));
   fiat_p384_mulx_u32(&x1043, &x1044, x11, 0x2);
   fiat_p384_mulx_u32(&x1045, &x1046, x11, UINT32_C(0xfffffffe));
   fiat_p384_mulx_u32(&x1047, &x1048, x11, 0x2);
@@ -8877,7 +8877,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_to_montgomery(fiat_p384_montgomery_d
   fiat_p384_addcarryx_u32(&x1131, &x1132, x1130, x1071, x1107);
   fiat_p384_addcarryx_u32(&x1133, &x1134, x1132, x1073, x1109);
   fiat_p384_addcarryx_u32(&x1135, &x1136, x1134, x1075, x1111);
-  fiat_p384_addcarryx_u32(&x1137, &x1138, x1136, ((uint32_t)x1076 + x1042), (x1112 + x1078));
+  fiat_p384_addcarryx_u32(&x1137, &x1138, x1136, (uint32_t)((fiat_p384_uint1)x1076 + (fiat_p384_uint1)x1042), (uint32_t)((fiat_p384_uint1)x1112 + (uint32_t)x1078));
   fiat_p384_subborrowx_u32(&x1139, &x1140, 0x0, x1115, UINT32_C(0xffffffff));
   fiat_p384_subborrowx_u32(&x1141, &x1142, x1140, x1117, 0x0);
   fiat_p384_subborrowx_u32(&x1143, &x1144, x1142, x1119, 0x0);
@@ -9832,7 +9832,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_divstep(uint32_t* out1, uint32_t out
   uint32_t x333;
   uint32_t x334;
   fiat_p384_addcarryx_u32(&x1, &x2, 0x0, (~arg1), 0x1);
-  x3 = (fiat_p384_uint1)((fiat_p384_uint1)(x1 >> 31) & (fiat_p384_uint1)((arg3[0]) & 0x1));
+  x3 = (fiat_p384_uint1)((fiat_p384_uint1)(fiat_p384_uint1)((uint32_t)x1 >> 31) & (fiat_p384_uint1)(fiat_p384_uint1)((uint32_t)(arg3[0]) & (fiat_p384_uint1)0x1));
   fiat_p384_addcarryx_u32(&x4, &x5, 0x0, (~arg1), 0x1);
   fiat_p384_cmovznz_u32(&x6, x3, arg1, x4);
   fiat_p384_cmovznz_u32(&x7, x3, (arg2[0]), (arg3[0]));
@@ -9960,7 +9960,7 @@ static FIAT_P384_FIAT_INLINE void fiat_p384_divstep(uint32_t* out1, uint32_t out
   fiat_p384_cmovznz_u32(&x191, x3, (arg5[9]), x176);
   fiat_p384_cmovznz_u32(&x192, x3, (arg5[10]), x178);
   fiat_p384_cmovznz_u32(&x193, x3, (arg5[11]), x180);
-  x194 = (fiat_p384_uint1)(x46 & 0x1);
+  x194 = (fiat_p384_uint1)((uint32_t)x46 & (fiat_p384_uint1)0x1);
   fiat_p384_cmovznz_u32(&x195, x194, 0x0, x7);
   fiat_p384_cmovznz_u32(&x196, x194, 0x0, x8);
   fiat_p384_cmovznz_u32(&x197, x194, 0x0, x9);

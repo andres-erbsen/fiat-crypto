@@ -62,9 +62,9 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_addcarryx_u26(uint32_t* out1, fiat
   uint32_t x1;
   uint32_t x2;
   fiat_25519_uint1 x3;
-  x1 = ((arg1 + arg2) + arg3);
+  x1 = ((uint32_t)((fiat_25519_uint1)arg1 + (uint32_t)arg2) + arg3);
   x2 = (x1 & UINT32_C(0x3ffffff));
-  x3 = (fiat_25519_uint1)(x1 >> 26);
+  x3 = (fiat_25519_uint1)((uint32_t)x1 >> 26);
   *out1 = x2;
   *out2 = x3;
 }
@@ -88,11 +88,11 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_subborrowx_u26(uint32_t* out1, fia
   int32_t x1;
   fiat_25519_int1 x2;
   uint32_t x3;
-  x1 = ((int32_t)(arg2 - arg1) - (int32_t)arg3);
-  x2 = (fiat_25519_int1)(x1 >> 26);
+  x1 = ((int32_t)((uint32_t)arg2 - (fiat_25519_uint1)arg1) - (int32_t)arg3);
+  x2 = (fiat_25519_int1)((int32_t)x1 >> 26);
   x3 = (x1 & UINT32_C(0x3ffffff));
   *out1 = x3;
-  *out2 = (fiat_25519_uint1)(0x0 - x2);
+  *out2 = (fiat_25519_uint1)((fiat_25519_uint1)0x0 - (fiat_25519_int1)x2);
 }
 
 /*
@@ -114,9 +114,9 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_addcarryx_u25(uint32_t* out1, fiat
   uint32_t x1;
   uint32_t x2;
   fiat_25519_uint1 x3;
-  x1 = ((arg1 + arg2) + arg3);
+  x1 = ((uint32_t)((fiat_25519_uint1)arg1 + (uint32_t)arg2) + arg3);
   x2 = (x1 & UINT32_C(0x1ffffff));
-  x3 = (fiat_25519_uint1)(x1 >> 25);
+  x3 = (fiat_25519_uint1)((uint32_t)x1 >> 25);
   *out1 = x2;
   *out2 = x3;
 }
@@ -140,11 +140,11 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_subborrowx_u25(uint32_t* out1, fia
   int32_t x1;
   fiat_25519_int1 x2;
   uint32_t x3;
-  x1 = ((int32_t)(arg2 - arg1) - (int32_t)arg3);
-  x2 = (fiat_25519_int1)(x1 >> 25);
+  x1 = ((int32_t)((uint32_t)arg2 - (fiat_25519_uint1)arg1) - (int32_t)arg3);
+  x2 = (fiat_25519_int1)((int32_t)x1 >> 25);
   x3 = (x1 & UINT32_C(0x1ffffff));
   *out1 = x3;
-  *out2 = (fiat_25519_uint1)(0x0 - x2);
+  *out2 = (fiat_25519_uint1)((fiat_25519_uint1)0x0 - (fiat_25519_int1)x2);
 }
 
 /*
@@ -164,8 +164,8 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_cmovznz_u32(uint32_t* out1, fiat_2
   fiat_25519_uint1 x1;
   uint32_t x2;
   uint32_t x3;
-  x1 = (!(!arg1));
-  x2 = ((fiat_25519_int1)(0x0 - x1) & UINT32_C(0xffffffff));
+  x1 = (fiat_25519_uint1)(!(fiat_25519_uint1)(fiat_25519_uint1)(!(fiat_25519_uint1)arg1));
+  x2 = (uint32_t)((fiat_25519_int1)(fiat_25519_int1)((fiat_25519_uint1)0x0 - (fiat_25519_uint1)x1) & (uint32_t)UINT32_C(0xffffffff));
   x3 = ((fiat_25519_value_barrier_u32(x2) & arg3) | (fiat_25519_value_barrier_u32((~x2)) & arg2));
   *out1 = x3;
 }
@@ -469,9 +469,9 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_carry_mul(fiat_25519_tight_field_e
   x142 = (uint32_t)(x141 >> 26);
   x143 = (uint32_t)(x141 & UINT32_C(0x3ffffff));
   x144 = (x142 + x115);
-  x145 = (fiat_25519_uint1)(x144 >> 25);
+  x145 = (fiat_25519_uint1)((uint32_t)x144 >> 25);
   x146 = (x144 & UINT32_C(0x1ffffff));
-  x147 = (x145 + x118);
+  x147 = (uint32_t)((fiat_25519_uint1)x145 + (uint32_t)x118);
   out1[0] = x143;
   out1[1] = x146;
   out1[2] = x147;
@@ -729,9 +729,9 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_carry_square(fiat_25519_tight_fiel
   x115 = (uint32_t)(x114 >> 26);
   x116 = (uint32_t)(x114 & UINT32_C(0x3ffffff));
   x117 = (x115 + x88);
-  x118 = (fiat_25519_uint1)(x117 >> 25);
+  x118 = (fiat_25519_uint1)((uint32_t)x117 >> 25);
   x119 = (x117 & UINT32_C(0x1ffffff));
-  x120 = (x118 + x91);
+  x120 = (uint32_t)((fiat_25519_uint1)x118 + (uint32_t)x91);
   out1[0] = x116;
   out1[1] = x119;
   out1[2] = x120;
@@ -785,10 +785,10 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_carry(fiat_25519_tight_field_eleme
   x9 = ((x8 >> 25) + (arg1[8]));
   x10 = ((x9 >> 26) + (arg1[9]));
   x11 = ((x1 & UINT32_C(0x3ffffff)) + ((x10 >> 25) * UINT8_C(0x13)));
-  x12 = ((fiat_25519_uint1)(x11 >> 26) + (x2 & UINT32_C(0x1ffffff)));
+  x12 = (uint32_t)((fiat_25519_uint1)(fiat_25519_uint1)((uint32_t)x11 >> 26) + (uint32_t)(x2 & UINT32_C(0x1ffffff)));
   x13 = (x11 & UINT32_C(0x3ffffff));
   x14 = (x12 & UINT32_C(0x1ffffff));
-  x15 = ((fiat_25519_uint1)(x12 >> 25) + (x3 & UINT32_C(0x3ffffff)));
+  x15 = (uint32_t)((fiat_25519_uint1)(fiat_25519_uint1)((uint32_t)x12 >> 25) + (uint32_t)(x3 & UINT32_C(0x3ffffff)));
   x16 = (x4 & UINT32_C(0x1ffffff));
   x17 = (x5 & UINT32_C(0x3ffffff));
   x18 = (x6 & UINT32_C(0x1ffffff));
@@ -1169,8 +1169,8 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_to_bytes(uint8_t out1[32], const f
   x86 = (uint8_t)(x85 & UINT8_C(0xff));
   x87 = (x85 >> 8);
   x88 = (uint8_t)(x87 & UINT8_C(0xff));
-  x89 = (fiat_25519_uint1)(x87 >> 8);
-  x90 = (x45 + (uint32_t)x89);
+  x89 = (fiat_25519_uint1)((uint32_t)x87 >> 8);
+  x90 = (uint32_t)((uint32_t)x45 + (fiat_25519_uint1)x89);
   x91 = (uint8_t)(x90 & UINT8_C(0xff));
   x92 = (x90 >> 8);
   x93 = (uint8_t)(x92 & UINT8_C(0xff));
@@ -1546,12 +1546,12 @@ static FIAT_25519_FIAT_INLINE void fiat_25519_carry_scmul_121666(fiat_25519_tigh
   x39 = (uint32_t)(x37 & UINT32_C(0x1ffffff));
   x40 = (x38 * UINT8_C(0x13));
   x41 = (x12 + x40);
-  x42 = (fiat_25519_uint1)(x41 >> 26);
+  x42 = (fiat_25519_uint1)((uint32_t)x41 >> 26);
   x43 = (x41 & UINT32_C(0x3ffffff));
-  x44 = (x42 + x15);
-  x45 = (fiat_25519_uint1)(x44 >> 25);
+  x44 = (uint32_t)((fiat_25519_uint1)x42 + (uint32_t)x15);
+  x45 = (fiat_25519_uint1)((uint32_t)x44 >> 25);
   x46 = (x44 & UINT32_C(0x1ffffff));
-  x47 = (x45 + x18);
+  x47 = (uint32_t)((fiat_25519_uint1)x45 + (uint32_t)x18);
   out1[0] = x43;
   out1[1] = x46;
   out1[2] = x47;

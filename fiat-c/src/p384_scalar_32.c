@@ -67,9 +67,9 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_addcarryx_u32(uint32_t
   uint64_t x1;
   uint32_t x2;
   fiat_p384_scalar_uint1 x3;
-  x1 = ((arg1 + (uint64_t)arg2) + arg3);
+  x1 = ((uint64_t)((fiat_p384_scalar_uint1)arg1 + (uint32_t)arg2) + arg3);
   x2 = (uint32_t)(x1 & UINT32_C(0xffffffff));
-  x3 = (fiat_p384_scalar_uint1)(x1 >> 32);
+  x3 = (fiat_p384_scalar_uint1)((uint64_t)x1 >> 32);
   *out1 = x2;
   *out2 = x3;
 }
@@ -93,11 +93,11 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_subborrowx_u32(uint32_
   int64_t x1;
   fiat_p384_scalar_int1 x2;
   uint32_t x3;
-  x1 = ((arg2 - (int64_t)arg1) - arg3);
-  x2 = (fiat_p384_scalar_int1)(x1 >> 32);
+  x1 = ((int64_t)((uint32_t)arg2 - (fiat_p384_scalar_uint1)arg1) - arg3);
+  x2 = (fiat_p384_scalar_int1)((int64_t)x1 >> 32);
   x3 = (uint32_t)(x1 & UINT32_C(0xffffffff));
   *out1 = x3;
-  *out2 = (fiat_p384_scalar_uint1)(0x0 - x2);
+  *out2 = (fiat_p384_scalar_uint1)((fiat_p384_scalar_uint1)0x0 - (fiat_p384_scalar_int1)x2);
 }
 
 /*
@@ -142,8 +142,8 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_cmovznz_u32(uint32_t* 
   fiat_p384_scalar_uint1 x1;
   uint32_t x2;
   uint32_t x3;
-  x1 = (!(!arg1));
-  x2 = ((fiat_p384_scalar_int1)(0x0 - x1) & UINT32_C(0xffffffff));
+  x1 = (fiat_p384_scalar_uint1)(!(fiat_p384_scalar_uint1)(fiat_p384_scalar_uint1)(!(fiat_p384_scalar_uint1)arg1));
+  x2 = (uint32_t)((fiat_p384_scalar_int1)(fiat_p384_scalar_int1)((fiat_p384_scalar_uint1)0x0 - (fiat_p384_scalar_uint1)x1) & (uint32_t)UINT32_C(0xffffffff));
   x3 = ((fiat_p384_scalar_value_barrier_u32(x2) & arg3) | (fiat_p384_scalar_value_barrier_u32((~x2)) & arg2));
   *out1 = x3;
 }
@@ -2006,7 +2006,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x53, &x54, x52, x20, x17);
   fiat_p384_scalar_addcarryx_u32(&x55, &x56, x54, x18, x15);
   fiat_p384_scalar_addcarryx_u32(&x57, &x58, x56, x16, x13);
-  x59 = (x58 + x14);
+  x59 = (uint32_t)((fiat_p384_scalar_uint1)x58 + (uint32_t)x14);
   fiat_p384_scalar_mulx_u32(&x60, &x61, x35, UINT32_C(0xe88fdc45));
   fiat_p384_scalar_mulx_u32(&x62, &x63, x60, UINT32_C(0xffffffff));
   fiat_p384_scalar_mulx_u32(&x64, &x65, x60, UINT32_C(0xffffffff));
@@ -2031,7 +2031,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x102, &x103, x101, x69, x66);
   fiat_p384_scalar_addcarryx_u32(&x104, &x105, x103, x67, x64);
   fiat_p384_scalar_addcarryx_u32(&x106, &x107, x105, x65, x62);
-  x108 = (x107 + x63);
+  x108 = (uint32_t)((fiat_p384_scalar_uint1)x107 + (uint32_t)x63);
   fiat_p384_scalar_addcarryx_u32(&x109, &x110, 0x0, x35, x84);
   fiat_p384_scalar_addcarryx_u32(&x111, &x112, x110, x37, x86);
   fiat_p384_scalar_addcarryx_u32(&x113, &x114, x112, x39, x88);
@@ -2068,7 +2068,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x175, &x176, x174, x142, x139);
   fiat_p384_scalar_addcarryx_u32(&x177, &x178, x176, x140, x137);
   fiat_p384_scalar_addcarryx_u32(&x179, &x180, x178, x138, x135);
-  x181 = (x180 + x136);
+  x181 = (uint32_t)((fiat_p384_scalar_uint1)x180 + (uint32_t)x136);
   fiat_p384_scalar_addcarryx_u32(&x182, &x183, 0x0, x111, x157);
   fiat_p384_scalar_addcarryx_u32(&x184, &x185, x183, x113, x159);
   fiat_p384_scalar_addcarryx_u32(&x186, &x187, x185, x115, x161);
@@ -2106,7 +2106,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x250, &x251, x249, x217, x214);
   fiat_p384_scalar_addcarryx_u32(&x252, &x253, x251, x215, x212);
   fiat_p384_scalar_addcarryx_u32(&x254, &x255, x253, x213, x210);
-  x256 = (x255 + x211);
+  x256 = (uint32_t)((fiat_p384_scalar_uint1)x255 + (uint32_t)x211);
   fiat_p384_scalar_addcarryx_u32(&x257, &x258, 0x0, x182, x232);
   fiat_p384_scalar_addcarryx_u32(&x259, &x260, x258, x184, x234);
   fiat_p384_scalar_addcarryx_u32(&x261, &x262, x260, x186, x236);
@@ -2120,7 +2120,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x277, &x278, x276, x202, x252);
   fiat_p384_scalar_addcarryx_u32(&x279, &x280, x278, x204, x254);
   fiat_p384_scalar_addcarryx_u32(&x281, &x282, x280, x206, x256);
-  x283 = ((uint32_t)x282 + x207);
+  x283 = (uint32_t)((fiat_p384_scalar_uint1)x282 + (fiat_p384_scalar_uint1)x207);
   fiat_p384_scalar_mulx_u32(&x284, &x285, x2, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x286, &x287, x2, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x288, &x289, x2, (arg2[9]));
@@ -2144,7 +2144,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x324, &x325, x323, x291, x288);
   fiat_p384_scalar_addcarryx_u32(&x326, &x327, x325, x289, x286);
   fiat_p384_scalar_addcarryx_u32(&x328, &x329, x327, x287, x284);
-  x330 = (x329 + x285);
+  x330 = (uint32_t)((fiat_p384_scalar_uint1)x329 + (uint32_t)x285);
   fiat_p384_scalar_addcarryx_u32(&x331, &x332, 0x0, x259, x306);
   fiat_p384_scalar_addcarryx_u32(&x333, &x334, x332, x261, x308);
   fiat_p384_scalar_addcarryx_u32(&x335, &x336, x334, x263, x310);
@@ -2182,7 +2182,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x399, &x400, x398, x366, x363);
   fiat_p384_scalar_addcarryx_u32(&x401, &x402, x400, x364, x361);
   fiat_p384_scalar_addcarryx_u32(&x403, &x404, x402, x362, x359);
-  x405 = (x404 + x360);
+  x405 = (uint32_t)((fiat_p384_scalar_uint1)x404 + (uint32_t)x360);
   fiat_p384_scalar_addcarryx_u32(&x406, &x407, 0x0, x331, x381);
   fiat_p384_scalar_addcarryx_u32(&x408, &x409, x407, x333, x383);
   fiat_p384_scalar_addcarryx_u32(&x410, &x411, x409, x335, x385);
@@ -2196,7 +2196,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x426, &x427, x425, x351, x401);
   fiat_p384_scalar_addcarryx_u32(&x428, &x429, x427, x353, x403);
   fiat_p384_scalar_addcarryx_u32(&x430, &x431, x429, x355, x405);
-  x432 = ((uint32_t)x431 + x356);
+  x432 = (uint32_t)((fiat_p384_scalar_uint1)x431 + (fiat_p384_scalar_uint1)x356);
   fiat_p384_scalar_mulx_u32(&x433, &x434, x3, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x435, &x436, x3, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x437, &x438, x3, (arg2[9]));
@@ -2220,7 +2220,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x473, &x474, x472, x440, x437);
   fiat_p384_scalar_addcarryx_u32(&x475, &x476, x474, x438, x435);
   fiat_p384_scalar_addcarryx_u32(&x477, &x478, x476, x436, x433);
-  x479 = (x478 + x434);
+  x479 = (uint32_t)((fiat_p384_scalar_uint1)x478 + (uint32_t)x434);
   fiat_p384_scalar_addcarryx_u32(&x480, &x481, 0x0, x408, x455);
   fiat_p384_scalar_addcarryx_u32(&x482, &x483, x481, x410, x457);
   fiat_p384_scalar_addcarryx_u32(&x484, &x485, x483, x412, x459);
@@ -2258,7 +2258,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x548, &x549, x547, x515, x512);
   fiat_p384_scalar_addcarryx_u32(&x550, &x551, x549, x513, x510);
   fiat_p384_scalar_addcarryx_u32(&x552, &x553, x551, x511, x508);
-  x554 = (x553 + x509);
+  x554 = (uint32_t)((fiat_p384_scalar_uint1)x553 + (uint32_t)x509);
   fiat_p384_scalar_addcarryx_u32(&x555, &x556, 0x0, x480, x530);
   fiat_p384_scalar_addcarryx_u32(&x557, &x558, x556, x482, x532);
   fiat_p384_scalar_addcarryx_u32(&x559, &x560, x558, x484, x534);
@@ -2272,7 +2272,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x575, &x576, x574, x500, x550);
   fiat_p384_scalar_addcarryx_u32(&x577, &x578, x576, x502, x552);
   fiat_p384_scalar_addcarryx_u32(&x579, &x580, x578, x504, x554);
-  x581 = ((uint32_t)x580 + x505);
+  x581 = (uint32_t)((fiat_p384_scalar_uint1)x580 + (fiat_p384_scalar_uint1)x505);
   fiat_p384_scalar_mulx_u32(&x582, &x583, x4, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x584, &x585, x4, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x586, &x587, x4, (arg2[9]));
@@ -2296,7 +2296,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x622, &x623, x621, x589, x586);
   fiat_p384_scalar_addcarryx_u32(&x624, &x625, x623, x587, x584);
   fiat_p384_scalar_addcarryx_u32(&x626, &x627, x625, x585, x582);
-  x628 = (x627 + x583);
+  x628 = (uint32_t)((fiat_p384_scalar_uint1)x627 + (uint32_t)x583);
   fiat_p384_scalar_addcarryx_u32(&x629, &x630, 0x0, x557, x604);
   fiat_p384_scalar_addcarryx_u32(&x631, &x632, x630, x559, x606);
   fiat_p384_scalar_addcarryx_u32(&x633, &x634, x632, x561, x608);
@@ -2334,7 +2334,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x697, &x698, x696, x664, x661);
   fiat_p384_scalar_addcarryx_u32(&x699, &x700, x698, x662, x659);
   fiat_p384_scalar_addcarryx_u32(&x701, &x702, x700, x660, x657);
-  x703 = (x702 + x658);
+  x703 = (uint32_t)((fiat_p384_scalar_uint1)x702 + (uint32_t)x658);
   fiat_p384_scalar_addcarryx_u32(&x704, &x705, 0x0, x629, x679);
   fiat_p384_scalar_addcarryx_u32(&x706, &x707, x705, x631, x681);
   fiat_p384_scalar_addcarryx_u32(&x708, &x709, x707, x633, x683);
@@ -2348,7 +2348,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x724, &x725, x723, x649, x699);
   fiat_p384_scalar_addcarryx_u32(&x726, &x727, x725, x651, x701);
   fiat_p384_scalar_addcarryx_u32(&x728, &x729, x727, x653, x703);
-  x730 = ((uint32_t)x729 + x654);
+  x730 = (uint32_t)((fiat_p384_scalar_uint1)x729 + (fiat_p384_scalar_uint1)x654);
   fiat_p384_scalar_mulx_u32(&x731, &x732, x5, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x733, &x734, x5, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x735, &x736, x5, (arg2[9]));
@@ -2372,7 +2372,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x771, &x772, x770, x738, x735);
   fiat_p384_scalar_addcarryx_u32(&x773, &x774, x772, x736, x733);
   fiat_p384_scalar_addcarryx_u32(&x775, &x776, x774, x734, x731);
-  x777 = (x776 + x732);
+  x777 = (uint32_t)((fiat_p384_scalar_uint1)x776 + (uint32_t)x732);
   fiat_p384_scalar_addcarryx_u32(&x778, &x779, 0x0, x706, x753);
   fiat_p384_scalar_addcarryx_u32(&x780, &x781, x779, x708, x755);
   fiat_p384_scalar_addcarryx_u32(&x782, &x783, x781, x710, x757);
@@ -2410,7 +2410,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x846, &x847, x845, x813, x810);
   fiat_p384_scalar_addcarryx_u32(&x848, &x849, x847, x811, x808);
   fiat_p384_scalar_addcarryx_u32(&x850, &x851, x849, x809, x806);
-  x852 = (x851 + x807);
+  x852 = (uint32_t)((fiat_p384_scalar_uint1)x851 + (uint32_t)x807);
   fiat_p384_scalar_addcarryx_u32(&x853, &x854, 0x0, x778, x828);
   fiat_p384_scalar_addcarryx_u32(&x855, &x856, x854, x780, x830);
   fiat_p384_scalar_addcarryx_u32(&x857, &x858, x856, x782, x832);
@@ -2424,7 +2424,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x873, &x874, x872, x798, x848);
   fiat_p384_scalar_addcarryx_u32(&x875, &x876, x874, x800, x850);
   fiat_p384_scalar_addcarryx_u32(&x877, &x878, x876, x802, x852);
-  x879 = ((uint32_t)x878 + x803);
+  x879 = (uint32_t)((fiat_p384_scalar_uint1)x878 + (fiat_p384_scalar_uint1)x803);
   fiat_p384_scalar_mulx_u32(&x880, &x881, x6, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x882, &x883, x6, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x884, &x885, x6, (arg2[9]));
@@ -2448,7 +2448,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x920, &x921, x919, x887, x884);
   fiat_p384_scalar_addcarryx_u32(&x922, &x923, x921, x885, x882);
   fiat_p384_scalar_addcarryx_u32(&x924, &x925, x923, x883, x880);
-  x926 = (x925 + x881);
+  x926 = (uint32_t)((fiat_p384_scalar_uint1)x925 + (uint32_t)x881);
   fiat_p384_scalar_addcarryx_u32(&x927, &x928, 0x0, x855, x902);
   fiat_p384_scalar_addcarryx_u32(&x929, &x930, x928, x857, x904);
   fiat_p384_scalar_addcarryx_u32(&x931, &x932, x930, x859, x906);
@@ -2486,7 +2486,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x995, &x996, x994, x962, x959);
   fiat_p384_scalar_addcarryx_u32(&x997, &x998, x996, x960, x957);
   fiat_p384_scalar_addcarryx_u32(&x999, &x1000, x998, x958, x955);
-  x1001 = (x1000 + x956);
+  x1001 = (uint32_t)((fiat_p384_scalar_uint1)x1000 + (uint32_t)x956);
   fiat_p384_scalar_addcarryx_u32(&x1002, &x1003, 0x0, x927, x977);
   fiat_p384_scalar_addcarryx_u32(&x1004, &x1005, x1003, x929, x979);
   fiat_p384_scalar_addcarryx_u32(&x1006, &x1007, x1005, x931, x981);
@@ -2500,7 +2500,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1022, &x1023, x1021, x947, x997);
   fiat_p384_scalar_addcarryx_u32(&x1024, &x1025, x1023, x949, x999);
   fiat_p384_scalar_addcarryx_u32(&x1026, &x1027, x1025, x951, x1001);
-  x1028 = ((uint32_t)x1027 + x952);
+  x1028 = (uint32_t)((fiat_p384_scalar_uint1)x1027 + (fiat_p384_scalar_uint1)x952);
   fiat_p384_scalar_mulx_u32(&x1029, &x1030, x7, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x1031, &x1032, x7, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x1033, &x1034, x7, (arg2[9]));
@@ -2524,7 +2524,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1069, &x1070, x1068, x1036, x1033);
   fiat_p384_scalar_addcarryx_u32(&x1071, &x1072, x1070, x1034, x1031);
   fiat_p384_scalar_addcarryx_u32(&x1073, &x1074, x1072, x1032, x1029);
-  x1075 = (x1074 + x1030);
+  x1075 = (uint32_t)((fiat_p384_scalar_uint1)x1074 + (uint32_t)x1030);
   fiat_p384_scalar_addcarryx_u32(&x1076, &x1077, 0x0, x1004, x1051);
   fiat_p384_scalar_addcarryx_u32(&x1078, &x1079, x1077, x1006, x1053);
   fiat_p384_scalar_addcarryx_u32(&x1080, &x1081, x1079, x1008, x1055);
@@ -2562,7 +2562,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1144, &x1145, x1143, x1111, x1108);
   fiat_p384_scalar_addcarryx_u32(&x1146, &x1147, x1145, x1109, x1106);
   fiat_p384_scalar_addcarryx_u32(&x1148, &x1149, x1147, x1107, x1104);
-  x1150 = (x1149 + x1105);
+  x1150 = (uint32_t)((fiat_p384_scalar_uint1)x1149 + (uint32_t)x1105);
   fiat_p384_scalar_addcarryx_u32(&x1151, &x1152, 0x0, x1076, x1126);
   fiat_p384_scalar_addcarryx_u32(&x1153, &x1154, x1152, x1078, x1128);
   fiat_p384_scalar_addcarryx_u32(&x1155, &x1156, x1154, x1080, x1130);
@@ -2576,7 +2576,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1171, &x1172, x1170, x1096, x1146);
   fiat_p384_scalar_addcarryx_u32(&x1173, &x1174, x1172, x1098, x1148);
   fiat_p384_scalar_addcarryx_u32(&x1175, &x1176, x1174, x1100, x1150);
-  x1177 = ((uint32_t)x1176 + x1101);
+  x1177 = (uint32_t)((fiat_p384_scalar_uint1)x1176 + (fiat_p384_scalar_uint1)x1101);
   fiat_p384_scalar_mulx_u32(&x1178, &x1179, x8, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x1180, &x1181, x8, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x1182, &x1183, x8, (arg2[9]));
@@ -2600,7 +2600,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1218, &x1219, x1217, x1185, x1182);
   fiat_p384_scalar_addcarryx_u32(&x1220, &x1221, x1219, x1183, x1180);
   fiat_p384_scalar_addcarryx_u32(&x1222, &x1223, x1221, x1181, x1178);
-  x1224 = (x1223 + x1179);
+  x1224 = (uint32_t)((fiat_p384_scalar_uint1)x1223 + (uint32_t)x1179);
   fiat_p384_scalar_addcarryx_u32(&x1225, &x1226, 0x0, x1153, x1200);
   fiat_p384_scalar_addcarryx_u32(&x1227, &x1228, x1226, x1155, x1202);
   fiat_p384_scalar_addcarryx_u32(&x1229, &x1230, x1228, x1157, x1204);
@@ -2638,7 +2638,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1293, &x1294, x1292, x1260, x1257);
   fiat_p384_scalar_addcarryx_u32(&x1295, &x1296, x1294, x1258, x1255);
   fiat_p384_scalar_addcarryx_u32(&x1297, &x1298, x1296, x1256, x1253);
-  x1299 = (x1298 + x1254);
+  x1299 = (uint32_t)((fiat_p384_scalar_uint1)x1298 + (uint32_t)x1254);
   fiat_p384_scalar_addcarryx_u32(&x1300, &x1301, 0x0, x1225, x1275);
   fiat_p384_scalar_addcarryx_u32(&x1302, &x1303, x1301, x1227, x1277);
   fiat_p384_scalar_addcarryx_u32(&x1304, &x1305, x1303, x1229, x1279);
@@ -2652,7 +2652,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1320, &x1321, x1319, x1245, x1295);
   fiat_p384_scalar_addcarryx_u32(&x1322, &x1323, x1321, x1247, x1297);
   fiat_p384_scalar_addcarryx_u32(&x1324, &x1325, x1323, x1249, x1299);
-  x1326 = ((uint32_t)x1325 + x1250);
+  x1326 = (uint32_t)((fiat_p384_scalar_uint1)x1325 + (fiat_p384_scalar_uint1)x1250);
   fiat_p384_scalar_mulx_u32(&x1327, &x1328, x9, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x1329, &x1330, x9, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x1331, &x1332, x9, (arg2[9]));
@@ -2676,7 +2676,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1367, &x1368, x1366, x1334, x1331);
   fiat_p384_scalar_addcarryx_u32(&x1369, &x1370, x1368, x1332, x1329);
   fiat_p384_scalar_addcarryx_u32(&x1371, &x1372, x1370, x1330, x1327);
-  x1373 = (x1372 + x1328);
+  x1373 = (uint32_t)((fiat_p384_scalar_uint1)x1372 + (uint32_t)x1328);
   fiat_p384_scalar_addcarryx_u32(&x1374, &x1375, 0x0, x1302, x1349);
   fiat_p384_scalar_addcarryx_u32(&x1376, &x1377, x1375, x1304, x1351);
   fiat_p384_scalar_addcarryx_u32(&x1378, &x1379, x1377, x1306, x1353);
@@ -2714,7 +2714,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1442, &x1443, x1441, x1409, x1406);
   fiat_p384_scalar_addcarryx_u32(&x1444, &x1445, x1443, x1407, x1404);
   fiat_p384_scalar_addcarryx_u32(&x1446, &x1447, x1445, x1405, x1402);
-  x1448 = (x1447 + x1403);
+  x1448 = (uint32_t)((fiat_p384_scalar_uint1)x1447 + (uint32_t)x1403);
   fiat_p384_scalar_addcarryx_u32(&x1449, &x1450, 0x0, x1374, x1424);
   fiat_p384_scalar_addcarryx_u32(&x1451, &x1452, x1450, x1376, x1426);
   fiat_p384_scalar_addcarryx_u32(&x1453, &x1454, x1452, x1378, x1428);
@@ -2728,7 +2728,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1469, &x1470, x1468, x1394, x1444);
   fiat_p384_scalar_addcarryx_u32(&x1471, &x1472, x1470, x1396, x1446);
   fiat_p384_scalar_addcarryx_u32(&x1473, &x1474, x1472, x1398, x1448);
-  x1475 = ((uint32_t)x1474 + x1399);
+  x1475 = (uint32_t)((fiat_p384_scalar_uint1)x1474 + (fiat_p384_scalar_uint1)x1399);
   fiat_p384_scalar_mulx_u32(&x1476, &x1477, x10, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x1478, &x1479, x10, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x1480, &x1481, x10, (arg2[9]));
@@ -2752,7 +2752,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1516, &x1517, x1515, x1483, x1480);
   fiat_p384_scalar_addcarryx_u32(&x1518, &x1519, x1517, x1481, x1478);
   fiat_p384_scalar_addcarryx_u32(&x1520, &x1521, x1519, x1479, x1476);
-  x1522 = (x1521 + x1477);
+  x1522 = (uint32_t)((fiat_p384_scalar_uint1)x1521 + (uint32_t)x1477);
   fiat_p384_scalar_addcarryx_u32(&x1523, &x1524, 0x0, x1451, x1498);
   fiat_p384_scalar_addcarryx_u32(&x1525, &x1526, x1524, x1453, x1500);
   fiat_p384_scalar_addcarryx_u32(&x1527, &x1528, x1526, x1455, x1502);
@@ -2790,7 +2790,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1591, &x1592, x1590, x1558, x1555);
   fiat_p384_scalar_addcarryx_u32(&x1593, &x1594, x1592, x1556, x1553);
   fiat_p384_scalar_addcarryx_u32(&x1595, &x1596, x1594, x1554, x1551);
-  x1597 = (x1596 + x1552);
+  x1597 = (uint32_t)((fiat_p384_scalar_uint1)x1596 + (uint32_t)x1552);
   fiat_p384_scalar_addcarryx_u32(&x1598, &x1599, 0x0, x1523, x1573);
   fiat_p384_scalar_addcarryx_u32(&x1600, &x1601, x1599, x1525, x1575);
   fiat_p384_scalar_addcarryx_u32(&x1602, &x1603, x1601, x1527, x1577);
@@ -2804,7 +2804,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1618, &x1619, x1617, x1543, x1593);
   fiat_p384_scalar_addcarryx_u32(&x1620, &x1621, x1619, x1545, x1595);
   fiat_p384_scalar_addcarryx_u32(&x1622, &x1623, x1621, x1547, x1597);
-  x1624 = ((uint32_t)x1623 + x1548);
+  x1624 = (uint32_t)((fiat_p384_scalar_uint1)x1623 + (fiat_p384_scalar_uint1)x1548);
   fiat_p384_scalar_mulx_u32(&x1625, &x1626, x11, (arg2[11]));
   fiat_p384_scalar_mulx_u32(&x1627, &x1628, x11, (arg2[10]));
   fiat_p384_scalar_mulx_u32(&x1629, &x1630, x11, (arg2[9]));
@@ -2828,7 +2828,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1665, &x1666, x1664, x1632, x1629);
   fiat_p384_scalar_addcarryx_u32(&x1667, &x1668, x1666, x1630, x1627);
   fiat_p384_scalar_addcarryx_u32(&x1669, &x1670, x1668, x1628, x1625);
-  x1671 = (x1670 + x1626);
+  x1671 = (uint32_t)((fiat_p384_scalar_uint1)x1670 + (uint32_t)x1626);
   fiat_p384_scalar_addcarryx_u32(&x1672, &x1673, 0x0, x1600, x1647);
   fiat_p384_scalar_addcarryx_u32(&x1674, &x1675, x1673, x1602, x1649);
   fiat_p384_scalar_addcarryx_u32(&x1676, &x1677, x1675, x1604, x1651);
@@ -2866,7 +2866,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1740, &x1741, x1739, x1707, x1704);
   fiat_p384_scalar_addcarryx_u32(&x1742, &x1743, x1741, x1705, x1702);
   fiat_p384_scalar_addcarryx_u32(&x1744, &x1745, x1743, x1703, x1700);
-  x1746 = (x1745 + x1701);
+  x1746 = (uint32_t)((fiat_p384_scalar_uint1)x1745 + (uint32_t)x1701);
   fiat_p384_scalar_addcarryx_u32(&x1747, &x1748, 0x0, x1672, x1722);
   fiat_p384_scalar_addcarryx_u32(&x1749, &x1750, x1748, x1674, x1724);
   fiat_p384_scalar_addcarryx_u32(&x1751, &x1752, x1750, x1676, x1726);
@@ -2880,7 +2880,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_mul(fiat_p384_scalar_m
   fiat_p384_scalar_addcarryx_u32(&x1767, &x1768, x1766, x1692, x1742);
   fiat_p384_scalar_addcarryx_u32(&x1769, &x1770, x1768, x1694, x1744);
   fiat_p384_scalar_addcarryx_u32(&x1771, &x1772, x1770, x1696, x1746);
-  x1773 = ((uint32_t)x1772 + x1697);
+  x1773 = (uint32_t)((fiat_p384_scalar_uint1)x1772 + (fiat_p384_scalar_uint1)x1697);
   fiat_p384_scalar_subborrowx_u32(&x1774, &x1775, 0x0, x1749, UINT32_C(0xccc52973));
   fiat_p384_scalar_subborrowx_u32(&x1776, &x1777, x1775, x1751, UINT32_C(0xecec196a));
   fiat_p384_scalar_subborrowx_u32(&x1778, &x1779, x1777, x1753, UINT32_C(0x48b0a77a));
@@ -4777,7 +4777,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x53, &x54, x52, x20, x17);
   fiat_p384_scalar_addcarryx_u32(&x55, &x56, x54, x18, x15);
   fiat_p384_scalar_addcarryx_u32(&x57, &x58, x56, x16, x13);
-  x59 = (x58 + x14);
+  x59 = (uint32_t)((fiat_p384_scalar_uint1)x58 + (uint32_t)x14);
   fiat_p384_scalar_mulx_u32(&x60, &x61, x35, UINT32_C(0xe88fdc45));
   fiat_p384_scalar_mulx_u32(&x62, &x63, x60, UINT32_C(0xffffffff));
   fiat_p384_scalar_mulx_u32(&x64, &x65, x60, UINT32_C(0xffffffff));
@@ -4802,7 +4802,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x102, &x103, x101, x69, x66);
   fiat_p384_scalar_addcarryx_u32(&x104, &x105, x103, x67, x64);
   fiat_p384_scalar_addcarryx_u32(&x106, &x107, x105, x65, x62);
-  x108 = (x107 + x63);
+  x108 = (uint32_t)((fiat_p384_scalar_uint1)x107 + (uint32_t)x63);
   fiat_p384_scalar_addcarryx_u32(&x109, &x110, 0x0, x35, x84);
   fiat_p384_scalar_addcarryx_u32(&x111, &x112, x110, x37, x86);
   fiat_p384_scalar_addcarryx_u32(&x113, &x114, x112, x39, x88);
@@ -4839,7 +4839,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x175, &x176, x174, x142, x139);
   fiat_p384_scalar_addcarryx_u32(&x177, &x178, x176, x140, x137);
   fiat_p384_scalar_addcarryx_u32(&x179, &x180, x178, x138, x135);
-  x181 = (x180 + x136);
+  x181 = (uint32_t)((fiat_p384_scalar_uint1)x180 + (uint32_t)x136);
   fiat_p384_scalar_addcarryx_u32(&x182, &x183, 0x0, x111, x157);
   fiat_p384_scalar_addcarryx_u32(&x184, &x185, x183, x113, x159);
   fiat_p384_scalar_addcarryx_u32(&x186, &x187, x185, x115, x161);
@@ -4877,7 +4877,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x250, &x251, x249, x217, x214);
   fiat_p384_scalar_addcarryx_u32(&x252, &x253, x251, x215, x212);
   fiat_p384_scalar_addcarryx_u32(&x254, &x255, x253, x213, x210);
-  x256 = (x255 + x211);
+  x256 = (uint32_t)((fiat_p384_scalar_uint1)x255 + (uint32_t)x211);
   fiat_p384_scalar_addcarryx_u32(&x257, &x258, 0x0, x182, x232);
   fiat_p384_scalar_addcarryx_u32(&x259, &x260, x258, x184, x234);
   fiat_p384_scalar_addcarryx_u32(&x261, &x262, x260, x186, x236);
@@ -4891,7 +4891,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x277, &x278, x276, x202, x252);
   fiat_p384_scalar_addcarryx_u32(&x279, &x280, x278, x204, x254);
   fiat_p384_scalar_addcarryx_u32(&x281, &x282, x280, x206, x256);
-  x283 = ((uint32_t)x282 + x207);
+  x283 = (uint32_t)((fiat_p384_scalar_uint1)x282 + (fiat_p384_scalar_uint1)x207);
   fiat_p384_scalar_mulx_u32(&x284, &x285, x2, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x286, &x287, x2, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x288, &x289, x2, (arg1[9]));
@@ -4915,7 +4915,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x324, &x325, x323, x291, x288);
   fiat_p384_scalar_addcarryx_u32(&x326, &x327, x325, x289, x286);
   fiat_p384_scalar_addcarryx_u32(&x328, &x329, x327, x287, x284);
-  x330 = (x329 + x285);
+  x330 = (uint32_t)((fiat_p384_scalar_uint1)x329 + (uint32_t)x285);
   fiat_p384_scalar_addcarryx_u32(&x331, &x332, 0x0, x259, x306);
   fiat_p384_scalar_addcarryx_u32(&x333, &x334, x332, x261, x308);
   fiat_p384_scalar_addcarryx_u32(&x335, &x336, x334, x263, x310);
@@ -4953,7 +4953,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x399, &x400, x398, x366, x363);
   fiat_p384_scalar_addcarryx_u32(&x401, &x402, x400, x364, x361);
   fiat_p384_scalar_addcarryx_u32(&x403, &x404, x402, x362, x359);
-  x405 = (x404 + x360);
+  x405 = (uint32_t)((fiat_p384_scalar_uint1)x404 + (uint32_t)x360);
   fiat_p384_scalar_addcarryx_u32(&x406, &x407, 0x0, x331, x381);
   fiat_p384_scalar_addcarryx_u32(&x408, &x409, x407, x333, x383);
   fiat_p384_scalar_addcarryx_u32(&x410, &x411, x409, x335, x385);
@@ -4967,7 +4967,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x426, &x427, x425, x351, x401);
   fiat_p384_scalar_addcarryx_u32(&x428, &x429, x427, x353, x403);
   fiat_p384_scalar_addcarryx_u32(&x430, &x431, x429, x355, x405);
-  x432 = ((uint32_t)x431 + x356);
+  x432 = (uint32_t)((fiat_p384_scalar_uint1)x431 + (fiat_p384_scalar_uint1)x356);
   fiat_p384_scalar_mulx_u32(&x433, &x434, x3, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x435, &x436, x3, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x437, &x438, x3, (arg1[9]));
@@ -4991,7 +4991,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x473, &x474, x472, x440, x437);
   fiat_p384_scalar_addcarryx_u32(&x475, &x476, x474, x438, x435);
   fiat_p384_scalar_addcarryx_u32(&x477, &x478, x476, x436, x433);
-  x479 = (x478 + x434);
+  x479 = (uint32_t)((fiat_p384_scalar_uint1)x478 + (uint32_t)x434);
   fiat_p384_scalar_addcarryx_u32(&x480, &x481, 0x0, x408, x455);
   fiat_p384_scalar_addcarryx_u32(&x482, &x483, x481, x410, x457);
   fiat_p384_scalar_addcarryx_u32(&x484, &x485, x483, x412, x459);
@@ -5029,7 +5029,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x548, &x549, x547, x515, x512);
   fiat_p384_scalar_addcarryx_u32(&x550, &x551, x549, x513, x510);
   fiat_p384_scalar_addcarryx_u32(&x552, &x553, x551, x511, x508);
-  x554 = (x553 + x509);
+  x554 = (uint32_t)((fiat_p384_scalar_uint1)x553 + (uint32_t)x509);
   fiat_p384_scalar_addcarryx_u32(&x555, &x556, 0x0, x480, x530);
   fiat_p384_scalar_addcarryx_u32(&x557, &x558, x556, x482, x532);
   fiat_p384_scalar_addcarryx_u32(&x559, &x560, x558, x484, x534);
@@ -5043,7 +5043,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x575, &x576, x574, x500, x550);
   fiat_p384_scalar_addcarryx_u32(&x577, &x578, x576, x502, x552);
   fiat_p384_scalar_addcarryx_u32(&x579, &x580, x578, x504, x554);
-  x581 = ((uint32_t)x580 + x505);
+  x581 = (uint32_t)((fiat_p384_scalar_uint1)x580 + (fiat_p384_scalar_uint1)x505);
   fiat_p384_scalar_mulx_u32(&x582, &x583, x4, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x584, &x585, x4, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x586, &x587, x4, (arg1[9]));
@@ -5067,7 +5067,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x622, &x623, x621, x589, x586);
   fiat_p384_scalar_addcarryx_u32(&x624, &x625, x623, x587, x584);
   fiat_p384_scalar_addcarryx_u32(&x626, &x627, x625, x585, x582);
-  x628 = (x627 + x583);
+  x628 = (uint32_t)((fiat_p384_scalar_uint1)x627 + (uint32_t)x583);
   fiat_p384_scalar_addcarryx_u32(&x629, &x630, 0x0, x557, x604);
   fiat_p384_scalar_addcarryx_u32(&x631, &x632, x630, x559, x606);
   fiat_p384_scalar_addcarryx_u32(&x633, &x634, x632, x561, x608);
@@ -5105,7 +5105,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x697, &x698, x696, x664, x661);
   fiat_p384_scalar_addcarryx_u32(&x699, &x700, x698, x662, x659);
   fiat_p384_scalar_addcarryx_u32(&x701, &x702, x700, x660, x657);
-  x703 = (x702 + x658);
+  x703 = (uint32_t)((fiat_p384_scalar_uint1)x702 + (uint32_t)x658);
   fiat_p384_scalar_addcarryx_u32(&x704, &x705, 0x0, x629, x679);
   fiat_p384_scalar_addcarryx_u32(&x706, &x707, x705, x631, x681);
   fiat_p384_scalar_addcarryx_u32(&x708, &x709, x707, x633, x683);
@@ -5119,7 +5119,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x724, &x725, x723, x649, x699);
   fiat_p384_scalar_addcarryx_u32(&x726, &x727, x725, x651, x701);
   fiat_p384_scalar_addcarryx_u32(&x728, &x729, x727, x653, x703);
-  x730 = ((uint32_t)x729 + x654);
+  x730 = (uint32_t)((fiat_p384_scalar_uint1)x729 + (fiat_p384_scalar_uint1)x654);
   fiat_p384_scalar_mulx_u32(&x731, &x732, x5, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x733, &x734, x5, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x735, &x736, x5, (arg1[9]));
@@ -5143,7 +5143,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x771, &x772, x770, x738, x735);
   fiat_p384_scalar_addcarryx_u32(&x773, &x774, x772, x736, x733);
   fiat_p384_scalar_addcarryx_u32(&x775, &x776, x774, x734, x731);
-  x777 = (x776 + x732);
+  x777 = (uint32_t)((fiat_p384_scalar_uint1)x776 + (uint32_t)x732);
   fiat_p384_scalar_addcarryx_u32(&x778, &x779, 0x0, x706, x753);
   fiat_p384_scalar_addcarryx_u32(&x780, &x781, x779, x708, x755);
   fiat_p384_scalar_addcarryx_u32(&x782, &x783, x781, x710, x757);
@@ -5181,7 +5181,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x846, &x847, x845, x813, x810);
   fiat_p384_scalar_addcarryx_u32(&x848, &x849, x847, x811, x808);
   fiat_p384_scalar_addcarryx_u32(&x850, &x851, x849, x809, x806);
-  x852 = (x851 + x807);
+  x852 = (uint32_t)((fiat_p384_scalar_uint1)x851 + (uint32_t)x807);
   fiat_p384_scalar_addcarryx_u32(&x853, &x854, 0x0, x778, x828);
   fiat_p384_scalar_addcarryx_u32(&x855, &x856, x854, x780, x830);
   fiat_p384_scalar_addcarryx_u32(&x857, &x858, x856, x782, x832);
@@ -5195,7 +5195,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x873, &x874, x872, x798, x848);
   fiat_p384_scalar_addcarryx_u32(&x875, &x876, x874, x800, x850);
   fiat_p384_scalar_addcarryx_u32(&x877, &x878, x876, x802, x852);
-  x879 = ((uint32_t)x878 + x803);
+  x879 = (uint32_t)((fiat_p384_scalar_uint1)x878 + (fiat_p384_scalar_uint1)x803);
   fiat_p384_scalar_mulx_u32(&x880, &x881, x6, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x882, &x883, x6, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x884, &x885, x6, (arg1[9]));
@@ -5219,7 +5219,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x920, &x921, x919, x887, x884);
   fiat_p384_scalar_addcarryx_u32(&x922, &x923, x921, x885, x882);
   fiat_p384_scalar_addcarryx_u32(&x924, &x925, x923, x883, x880);
-  x926 = (x925 + x881);
+  x926 = (uint32_t)((fiat_p384_scalar_uint1)x925 + (uint32_t)x881);
   fiat_p384_scalar_addcarryx_u32(&x927, &x928, 0x0, x855, x902);
   fiat_p384_scalar_addcarryx_u32(&x929, &x930, x928, x857, x904);
   fiat_p384_scalar_addcarryx_u32(&x931, &x932, x930, x859, x906);
@@ -5257,7 +5257,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x995, &x996, x994, x962, x959);
   fiat_p384_scalar_addcarryx_u32(&x997, &x998, x996, x960, x957);
   fiat_p384_scalar_addcarryx_u32(&x999, &x1000, x998, x958, x955);
-  x1001 = (x1000 + x956);
+  x1001 = (uint32_t)((fiat_p384_scalar_uint1)x1000 + (uint32_t)x956);
   fiat_p384_scalar_addcarryx_u32(&x1002, &x1003, 0x0, x927, x977);
   fiat_p384_scalar_addcarryx_u32(&x1004, &x1005, x1003, x929, x979);
   fiat_p384_scalar_addcarryx_u32(&x1006, &x1007, x1005, x931, x981);
@@ -5271,7 +5271,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1022, &x1023, x1021, x947, x997);
   fiat_p384_scalar_addcarryx_u32(&x1024, &x1025, x1023, x949, x999);
   fiat_p384_scalar_addcarryx_u32(&x1026, &x1027, x1025, x951, x1001);
-  x1028 = ((uint32_t)x1027 + x952);
+  x1028 = (uint32_t)((fiat_p384_scalar_uint1)x1027 + (fiat_p384_scalar_uint1)x952);
   fiat_p384_scalar_mulx_u32(&x1029, &x1030, x7, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x1031, &x1032, x7, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x1033, &x1034, x7, (arg1[9]));
@@ -5295,7 +5295,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1069, &x1070, x1068, x1036, x1033);
   fiat_p384_scalar_addcarryx_u32(&x1071, &x1072, x1070, x1034, x1031);
   fiat_p384_scalar_addcarryx_u32(&x1073, &x1074, x1072, x1032, x1029);
-  x1075 = (x1074 + x1030);
+  x1075 = (uint32_t)((fiat_p384_scalar_uint1)x1074 + (uint32_t)x1030);
   fiat_p384_scalar_addcarryx_u32(&x1076, &x1077, 0x0, x1004, x1051);
   fiat_p384_scalar_addcarryx_u32(&x1078, &x1079, x1077, x1006, x1053);
   fiat_p384_scalar_addcarryx_u32(&x1080, &x1081, x1079, x1008, x1055);
@@ -5333,7 +5333,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1144, &x1145, x1143, x1111, x1108);
   fiat_p384_scalar_addcarryx_u32(&x1146, &x1147, x1145, x1109, x1106);
   fiat_p384_scalar_addcarryx_u32(&x1148, &x1149, x1147, x1107, x1104);
-  x1150 = (x1149 + x1105);
+  x1150 = (uint32_t)((fiat_p384_scalar_uint1)x1149 + (uint32_t)x1105);
   fiat_p384_scalar_addcarryx_u32(&x1151, &x1152, 0x0, x1076, x1126);
   fiat_p384_scalar_addcarryx_u32(&x1153, &x1154, x1152, x1078, x1128);
   fiat_p384_scalar_addcarryx_u32(&x1155, &x1156, x1154, x1080, x1130);
@@ -5347,7 +5347,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1171, &x1172, x1170, x1096, x1146);
   fiat_p384_scalar_addcarryx_u32(&x1173, &x1174, x1172, x1098, x1148);
   fiat_p384_scalar_addcarryx_u32(&x1175, &x1176, x1174, x1100, x1150);
-  x1177 = ((uint32_t)x1176 + x1101);
+  x1177 = (uint32_t)((fiat_p384_scalar_uint1)x1176 + (fiat_p384_scalar_uint1)x1101);
   fiat_p384_scalar_mulx_u32(&x1178, &x1179, x8, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x1180, &x1181, x8, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x1182, &x1183, x8, (arg1[9]));
@@ -5371,7 +5371,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1218, &x1219, x1217, x1185, x1182);
   fiat_p384_scalar_addcarryx_u32(&x1220, &x1221, x1219, x1183, x1180);
   fiat_p384_scalar_addcarryx_u32(&x1222, &x1223, x1221, x1181, x1178);
-  x1224 = (x1223 + x1179);
+  x1224 = (uint32_t)((fiat_p384_scalar_uint1)x1223 + (uint32_t)x1179);
   fiat_p384_scalar_addcarryx_u32(&x1225, &x1226, 0x0, x1153, x1200);
   fiat_p384_scalar_addcarryx_u32(&x1227, &x1228, x1226, x1155, x1202);
   fiat_p384_scalar_addcarryx_u32(&x1229, &x1230, x1228, x1157, x1204);
@@ -5409,7 +5409,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1293, &x1294, x1292, x1260, x1257);
   fiat_p384_scalar_addcarryx_u32(&x1295, &x1296, x1294, x1258, x1255);
   fiat_p384_scalar_addcarryx_u32(&x1297, &x1298, x1296, x1256, x1253);
-  x1299 = (x1298 + x1254);
+  x1299 = (uint32_t)((fiat_p384_scalar_uint1)x1298 + (uint32_t)x1254);
   fiat_p384_scalar_addcarryx_u32(&x1300, &x1301, 0x0, x1225, x1275);
   fiat_p384_scalar_addcarryx_u32(&x1302, &x1303, x1301, x1227, x1277);
   fiat_p384_scalar_addcarryx_u32(&x1304, &x1305, x1303, x1229, x1279);
@@ -5423,7 +5423,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1320, &x1321, x1319, x1245, x1295);
   fiat_p384_scalar_addcarryx_u32(&x1322, &x1323, x1321, x1247, x1297);
   fiat_p384_scalar_addcarryx_u32(&x1324, &x1325, x1323, x1249, x1299);
-  x1326 = ((uint32_t)x1325 + x1250);
+  x1326 = (uint32_t)((fiat_p384_scalar_uint1)x1325 + (fiat_p384_scalar_uint1)x1250);
   fiat_p384_scalar_mulx_u32(&x1327, &x1328, x9, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x1329, &x1330, x9, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x1331, &x1332, x9, (arg1[9]));
@@ -5447,7 +5447,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1367, &x1368, x1366, x1334, x1331);
   fiat_p384_scalar_addcarryx_u32(&x1369, &x1370, x1368, x1332, x1329);
   fiat_p384_scalar_addcarryx_u32(&x1371, &x1372, x1370, x1330, x1327);
-  x1373 = (x1372 + x1328);
+  x1373 = (uint32_t)((fiat_p384_scalar_uint1)x1372 + (uint32_t)x1328);
   fiat_p384_scalar_addcarryx_u32(&x1374, &x1375, 0x0, x1302, x1349);
   fiat_p384_scalar_addcarryx_u32(&x1376, &x1377, x1375, x1304, x1351);
   fiat_p384_scalar_addcarryx_u32(&x1378, &x1379, x1377, x1306, x1353);
@@ -5485,7 +5485,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1442, &x1443, x1441, x1409, x1406);
   fiat_p384_scalar_addcarryx_u32(&x1444, &x1445, x1443, x1407, x1404);
   fiat_p384_scalar_addcarryx_u32(&x1446, &x1447, x1445, x1405, x1402);
-  x1448 = (x1447 + x1403);
+  x1448 = (uint32_t)((fiat_p384_scalar_uint1)x1447 + (uint32_t)x1403);
   fiat_p384_scalar_addcarryx_u32(&x1449, &x1450, 0x0, x1374, x1424);
   fiat_p384_scalar_addcarryx_u32(&x1451, &x1452, x1450, x1376, x1426);
   fiat_p384_scalar_addcarryx_u32(&x1453, &x1454, x1452, x1378, x1428);
@@ -5499,7 +5499,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1469, &x1470, x1468, x1394, x1444);
   fiat_p384_scalar_addcarryx_u32(&x1471, &x1472, x1470, x1396, x1446);
   fiat_p384_scalar_addcarryx_u32(&x1473, &x1474, x1472, x1398, x1448);
-  x1475 = ((uint32_t)x1474 + x1399);
+  x1475 = (uint32_t)((fiat_p384_scalar_uint1)x1474 + (fiat_p384_scalar_uint1)x1399);
   fiat_p384_scalar_mulx_u32(&x1476, &x1477, x10, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x1478, &x1479, x10, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x1480, &x1481, x10, (arg1[9]));
@@ -5523,7 +5523,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1516, &x1517, x1515, x1483, x1480);
   fiat_p384_scalar_addcarryx_u32(&x1518, &x1519, x1517, x1481, x1478);
   fiat_p384_scalar_addcarryx_u32(&x1520, &x1521, x1519, x1479, x1476);
-  x1522 = (x1521 + x1477);
+  x1522 = (uint32_t)((fiat_p384_scalar_uint1)x1521 + (uint32_t)x1477);
   fiat_p384_scalar_addcarryx_u32(&x1523, &x1524, 0x0, x1451, x1498);
   fiat_p384_scalar_addcarryx_u32(&x1525, &x1526, x1524, x1453, x1500);
   fiat_p384_scalar_addcarryx_u32(&x1527, &x1528, x1526, x1455, x1502);
@@ -5561,7 +5561,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1591, &x1592, x1590, x1558, x1555);
   fiat_p384_scalar_addcarryx_u32(&x1593, &x1594, x1592, x1556, x1553);
   fiat_p384_scalar_addcarryx_u32(&x1595, &x1596, x1594, x1554, x1551);
-  x1597 = (x1596 + x1552);
+  x1597 = (uint32_t)((fiat_p384_scalar_uint1)x1596 + (uint32_t)x1552);
   fiat_p384_scalar_addcarryx_u32(&x1598, &x1599, 0x0, x1523, x1573);
   fiat_p384_scalar_addcarryx_u32(&x1600, &x1601, x1599, x1525, x1575);
   fiat_p384_scalar_addcarryx_u32(&x1602, &x1603, x1601, x1527, x1577);
@@ -5575,7 +5575,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1618, &x1619, x1617, x1543, x1593);
   fiat_p384_scalar_addcarryx_u32(&x1620, &x1621, x1619, x1545, x1595);
   fiat_p384_scalar_addcarryx_u32(&x1622, &x1623, x1621, x1547, x1597);
-  x1624 = ((uint32_t)x1623 + x1548);
+  x1624 = (uint32_t)((fiat_p384_scalar_uint1)x1623 + (fiat_p384_scalar_uint1)x1548);
   fiat_p384_scalar_mulx_u32(&x1625, &x1626, x11, (arg1[11]));
   fiat_p384_scalar_mulx_u32(&x1627, &x1628, x11, (arg1[10]));
   fiat_p384_scalar_mulx_u32(&x1629, &x1630, x11, (arg1[9]));
@@ -5599,7 +5599,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1665, &x1666, x1664, x1632, x1629);
   fiat_p384_scalar_addcarryx_u32(&x1667, &x1668, x1666, x1630, x1627);
   fiat_p384_scalar_addcarryx_u32(&x1669, &x1670, x1668, x1628, x1625);
-  x1671 = (x1670 + x1626);
+  x1671 = (uint32_t)((fiat_p384_scalar_uint1)x1670 + (uint32_t)x1626);
   fiat_p384_scalar_addcarryx_u32(&x1672, &x1673, 0x0, x1600, x1647);
   fiat_p384_scalar_addcarryx_u32(&x1674, &x1675, x1673, x1602, x1649);
   fiat_p384_scalar_addcarryx_u32(&x1676, &x1677, x1675, x1604, x1651);
@@ -5637,7 +5637,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1740, &x1741, x1739, x1707, x1704);
   fiat_p384_scalar_addcarryx_u32(&x1742, &x1743, x1741, x1705, x1702);
   fiat_p384_scalar_addcarryx_u32(&x1744, &x1745, x1743, x1703, x1700);
-  x1746 = (x1745 + x1701);
+  x1746 = (uint32_t)((fiat_p384_scalar_uint1)x1745 + (uint32_t)x1701);
   fiat_p384_scalar_addcarryx_u32(&x1747, &x1748, 0x0, x1672, x1722);
   fiat_p384_scalar_addcarryx_u32(&x1749, &x1750, x1748, x1674, x1724);
   fiat_p384_scalar_addcarryx_u32(&x1751, &x1752, x1750, x1676, x1726);
@@ -5651,7 +5651,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_square(fiat_p384_scala
   fiat_p384_scalar_addcarryx_u32(&x1767, &x1768, x1766, x1692, x1742);
   fiat_p384_scalar_addcarryx_u32(&x1769, &x1770, x1768, x1694, x1744);
   fiat_p384_scalar_addcarryx_u32(&x1771, &x1772, x1770, x1696, x1746);
-  x1773 = ((uint32_t)x1772 + x1697);
+  x1773 = (uint32_t)((fiat_p384_scalar_uint1)x1772 + (fiat_p384_scalar_uint1)x1697);
   fiat_p384_scalar_subborrowx_u32(&x1774, &x1775, 0x0, x1749, UINT32_C(0xccc52973));
   fiat_p384_scalar_subborrowx_u32(&x1776, &x1777, x1775, x1751, UINT32_C(0xecec196a));
   fiat_p384_scalar_subborrowx_u32(&x1778, &x1779, x1777, x1753, UINT32_C(0x48b0a77a));
@@ -7254,7 +7254,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x68, &x69, x67, 0x0, x44);
   fiat_p384_scalar_addcarryx_u32(&x70, &x71, x69, 0x0, x46);
   fiat_p384_scalar_addcarryx_u32(&x72, &x73, x71, 0x0, x48);
-  fiat_p384_scalar_addcarryx_u32(&x74, &x75, x73, 0x0, (x49 + x5));
+  fiat_p384_scalar_addcarryx_u32(&x74, &x75, x73, 0x0, (uint32_t)((fiat_p384_scalar_uint1)x49 + (uint32_t)x5));
   fiat_p384_scalar_addcarryx_u32(&x76, &x77, 0x0, x52, (arg1[1]));
   fiat_p384_scalar_addcarryx_u32(&x78, &x79, x77, x54, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x80, &x81, x79, x56, 0x0);
@@ -7303,7 +7303,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x166, &x167, x165, x94, x142);
   fiat_p384_scalar_addcarryx_u32(&x168, &x169, x167, x96, x144);
   fiat_p384_scalar_addcarryx_u32(&x170, &x171, x169, x98, x146);
-  fiat_p384_scalar_addcarryx_u32(&x172, &x173, x171, ((uint32_t)x99 + x75), (x147 + x103));
+  fiat_p384_scalar_addcarryx_u32(&x172, &x173, x171, (uint32_t)((fiat_p384_scalar_uint1)x99 + (fiat_p384_scalar_uint1)x75), (uint32_t)((fiat_p384_scalar_uint1)x147 + (uint32_t)x103));
   fiat_p384_scalar_addcarryx_u32(&x174, &x175, 0x0, x150, (arg1[2]));
   fiat_p384_scalar_addcarryx_u32(&x176, &x177, x175, x152, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x178, &x179, x177, x154, 0x0);
@@ -7352,7 +7352,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x264, &x265, x263, x192, x240);
   fiat_p384_scalar_addcarryx_u32(&x266, &x267, x265, x194, x242);
   fiat_p384_scalar_addcarryx_u32(&x268, &x269, x267, x196, x244);
-  fiat_p384_scalar_addcarryx_u32(&x270, &x271, x269, ((uint32_t)x197 + x173), (x245 + x201));
+  fiat_p384_scalar_addcarryx_u32(&x270, &x271, x269, (uint32_t)((fiat_p384_scalar_uint1)x197 + (fiat_p384_scalar_uint1)x173), (uint32_t)((fiat_p384_scalar_uint1)x245 + (uint32_t)x201));
   fiat_p384_scalar_addcarryx_u32(&x272, &x273, 0x0, x248, (arg1[3]));
   fiat_p384_scalar_addcarryx_u32(&x274, &x275, x273, x250, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x276, &x277, x275, x252, 0x0);
@@ -7401,7 +7401,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x362, &x363, x361, x290, x338);
   fiat_p384_scalar_addcarryx_u32(&x364, &x365, x363, x292, x340);
   fiat_p384_scalar_addcarryx_u32(&x366, &x367, x365, x294, x342);
-  fiat_p384_scalar_addcarryx_u32(&x368, &x369, x367, ((uint32_t)x295 + x271), (x343 + x299));
+  fiat_p384_scalar_addcarryx_u32(&x368, &x369, x367, (uint32_t)((fiat_p384_scalar_uint1)x295 + (fiat_p384_scalar_uint1)x271), (uint32_t)((fiat_p384_scalar_uint1)x343 + (uint32_t)x299));
   fiat_p384_scalar_addcarryx_u32(&x370, &x371, 0x0, x346, (arg1[4]));
   fiat_p384_scalar_addcarryx_u32(&x372, &x373, x371, x348, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x374, &x375, x373, x350, 0x0);
@@ -7450,7 +7450,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x460, &x461, x459, x388, x436);
   fiat_p384_scalar_addcarryx_u32(&x462, &x463, x461, x390, x438);
   fiat_p384_scalar_addcarryx_u32(&x464, &x465, x463, x392, x440);
-  fiat_p384_scalar_addcarryx_u32(&x466, &x467, x465, ((uint32_t)x393 + x369), (x441 + x397));
+  fiat_p384_scalar_addcarryx_u32(&x466, &x467, x465, (uint32_t)((fiat_p384_scalar_uint1)x393 + (fiat_p384_scalar_uint1)x369), (uint32_t)((fiat_p384_scalar_uint1)x441 + (uint32_t)x397));
   fiat_p384_scalar_addcarryx_u32(&x468, &x469, 0x0, x444, (arg1[5]));
   fiat_p384_scalar_addcarryx_u32(&x470, &x471, x469, x446, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x472, &x473, x471, x448, 0x0);
@@ -7499,7 +7499,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x558, &x559, x557, x486, x534);
   fiat_p384_scalar_addcarryx_u32(&x560, &x561, x559, x488, x536);
   fiat_p384_scalar_addcarryx_u32(&x562, &x563, x561, x490, x538);
-  fiat_p384_scalar_addcarryx_u32(&x564, &x565, x563, ((uint32_t)x491 + x467), (x539 + x495));
+  fiat_p384_scalar_addcarryx_u32(&x564, &x565, x563, (uint32_t)((fiat_p384_scalar_uint1)x491 + (fiat_p384_scalar_uint1)x467), (uint32_t)((fiat_p384_scalar_uint1)x539 + (uint32_t)x495));
   fiat_p384_scalar_addcarryx_u32(&x566, &x567, 0x0, x542, (arg1[6]));
   fiat_p384_scalar_addcarryx_u32(&x568, &x569, x567, x544, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x570, &x571, x569, x546, 0x0);
@@ -7548,7 +7548,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x656, &x657, x655, x584, x632);
   fiat_p384_scalar_addcarryx_u32(&x658, &x659, x657, x586, x634);
   fiat_p384_scalar_addcarryx_u32(&x660, &x661, x659, x588, x636);
-  fiat_p384_scalar_addcarryx_u32(&x662, &x663, x661, ((uint32_t)x589 + x565), (x637 + x593));
+  fiat_p384_scalar_addcarryx_u32(&x662, &x663, x661, (uint32_t)((fiat_p384_scalar_uint1)x589 + (fiat_p384_scalar_uint1)x565), (uint32_t)((fiat_p384_scalar_uint1)x637 + (uint32_t)x593));
   fiat_p384_scalar_addcarryx_u32(&x664, &x665, 0x0, x640, (arg1[7]));
   fiat_p384_scalar_addcarryx_u32(&x666, &x667, x665, x642, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x668, &x669, x667, x644, 0x0);
@@ -7597,7 +7597,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x754, &x755, x753, x682, x730);
   fiat_p384_scalar_addcarryx_u32(&x756, &x757, x755, x684, x732);
   fiat_p384_scalar_addcarryx_u32(&x758, &x759, x757, x686, x734);
-  fiat_p384_scalar_addcarryx_u32(&x760, &x761, x759, ((uint32_t)x687 + x663), (x735 + x691));
+  fiat_p384_scalar_addcarryx_u32(&x760, &x761, x759, (uint32_t)((fiat_p384_scalar_uint1)x687 + (fiat_p384_scalar_uint1)x663), (uint32_t)((fiat_p384_scalar_uint1)x735 + (uint32_t)x691));
   fiat_p384_scalar_addcarryx_u32(&x762, &x763, 0x0, x738, (arg1[8]));
   fiat_p384_scalar_addcarryx_u32(&x764, &x765, x763, x740, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x766, &x767, x765, x742, 0x0);
@@ -7646,7 +7646,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x852, &x853, x851, x780, x828);
   fiat_p384_scalar_addcarryx_u32(&x854, &x855, x853, x782, x830);
   fiat_p384_scalar_addcarryx_u32(&x856, &x857, x855, x784, x832);
-  fiat_p384_scalar_addcarryx_u32(&x858, &x859, x857, ((uint32_t)x785 + x761), (x833 + x789));
+  fiat_p384_scalar_addcarryx_u32(&x858, &x859, x857, (uint32_t)((fiat_p384_scalar_uint1)x785 + (fiat_p384_scalar_uint1)x761), (uint32_t)((fiat_p384_scalar_uint1)x833 + (uint32_t)x789));
   fiat_p384_scalar_addcarryx_u32(&x860, &x861, 0x0, x836, (arg1[9]));
   fiat_p384_scalar_addcarryx_u32(&x862, &x863, x861, x838, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x864, &x865, x863, x840, 0x0);
@@ -7695,7 +7695,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x950, &x951, x949, x878, x926);
   fiat_p384_scalar_addcarryx_u32(&x952, &x953, x951, x880, x928);
   fiat_p384_scalar_addcarryx_u32(&x954, &x955, x953, x882, x930);
-  fiat_p384_scalar_addcarryx_u32(&x956, &x957, x955, ((uint32_t)x883 + x859), (x931 + x887));
+  fiat_p384_scalar_addcarryx_u32(&x956, &x957, x955, (uint32_t)((fiat_p384_scalar_uint1)x883 + (fiat_p384_scalar_uint1)x859), (uint32_t)((fiat_p384_scalar_uint1)x931 + (uint32_t)x887));
   fiat_p384_scalar_addcarryx_u32(&x958, &x959, 0x0, x934, (arg1[10]));
   fiat_p384_scalar_addcarryx_u32(&x960, &x961, x959, x936, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x962, &x963, x961, x938, 0x0);
@@ -7744,7 +7744,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x1048, &x1049, x1047, x976, x1024);
   fiat_p384_scalar_addcarryx_u32(&x1050, &x1051, x1049, x978, x1026);
   fiat_p384_scalar_addcarryx_u32(&x1052, &x1053, x1051, x980, x1028);
-  fiat_p384_scalar_addcarryx_u32(&x1054, &x1055, x1053, ((uint32_t)x981 + x957), (x1029 + x985));
+  fiat_p384_scalar_addcarryx_u32(&x1054, &x1055, x1053, (uint32_t)((fiat_p384_scalar_uint1)x981 + (fiat_p384_scalar_uint1)x957), (uint32_t)((fiat_p384_scalar_uint1)x1029 + (uint32_t)x985));
   fiat_p384_scalar_addcarryx_u32(&x1056, &x1057, 0x0, x1032, (arg1[11]));
   fiat_p384_scalar_addcarryx_u32(&x1058, &x1059, x1057, x1034, 0x0);
   fiat_p384_scalar_addcarryx_u32(&x1060, &x1061, x1059, x1036, 0x0);
@@ -7793,7 +7793,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_from_montgomery(fiat_p
   fiat_p384_scalar_addcarryx_u32(&x1146, &x1147, x1145, x1074, x1122);
   fiat_p384_scalar_addcarryx_u32(&x1148, &x1149, x1147, x1076, x1124);
   fiat_p384_scalar_addcarryx_u32(&x1150, &x1151, x1149, x1078, x1126);
-  fiat_p384_scalar_addcarryx_u32(&x1152, &x1153, x1151, ((uint32_t)x1079 + x1055), (x1127 + x1083));
+  fiat_p384_scalar_addcarryx_u32(&x1152, &x1153, x1151, (uint32_t)((fiat_p384_scalar_uint1)x1079 + (fiat_p384_scalar_uint1)x1055), (uint32_t)((fiat_p384_scalar_uint1)x1127 + (uint32_t)x1083));
   fiat_p384_scalar_subborrowx_u32(&x1154, &x1155, 0x0, x1130, UINT32_C(0xccc52973));
   fiat_p384_scalar_subborrowx_u32(&x1156, &x1157, x1155, x1132, UINT32_C(0xecec196a));
   fiat_p384_scalar_subborrowx_u32(&x1158, &x1159, x1157, x1134, UINT32_C(0x48b0a77a));
@@ -9669,7 +9669,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x125, &x126, x124, x53, x101);
   fiat_p384_scalar_addcarryx_u32(&x127, &x128, x126, x55, x103);
   fiat_p384_scalar_addcarryx_u32(&x129, &x130, x128, x57, x105);
-  fiat_p384_scalar_addcarryx_u32(&x131, &x132, x130, (x58 + x14), (x106 + x62));
+  fiat_p384_scalar_addcarryx_u32(&x131, &x132, x130, (uint32_t)((fiat_p384_scalar_uint1)x58 + (uint32_t)x14), (uint32_t)((fiat_p384_scalar_uint1)x106 + (uint32_t)x62));
   fiat_p384_scalar_mulx_u32(&x133, &x134, x1, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x135, &x136, x1, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x137, &x138, x1, UINT32_C(0x3fb05b7a));
@@ -9741,7 +9741,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x269, &x270, x268, x197, x245);
   fiat_p384_scalar_addcarryx_u32(&x271, &x272, x270, x199, x247);
   fiat_p384_scalar_addcarryx_u32(&x273, &x274, x272, x201, x249);
-  fiat_p384_scalar_addcarryx_u32(&x275, &x276, x274, (((uint32_t)x202 + x132) + (x178 + x134)), (x250 + x206));
+  fiat_p384_scalar_addcarryx_u32(&x275, &x276, x274, ((uint32_t)((fiat_p384_scalar_uint1)x202 + (fiat_p384_scalar_uint1)x132) + (uint32_t)((fiat_p384_scalar_uint1)x178 + (uint32_t)x134)), (uint32_t)((fiat_p384_scalar_uint1)x250 + (uint32_t)x206));
   fiat_p384_scalar_mulx_u32(&x277, &x278, x2, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x279, &x280, x2, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x281, &x282, x2, UINT32_C(0x3fb05b7a));
@@ -9813,7 +9813,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x413, &x414, x412, x341, x389);
   fiat_p384_scalar_addcarryx_u32(&x415, &x416, x414, x343, x391);
   fiat_p384_scalar_addcarryx_u32(&x417, &x418, x416, x345, x393);
-  fiat_p384_scalar_addcarryx_u32(&x419, &x420, x418, (((uint32_t)x346 + x276) + (x322 + x278)), (x394 + x350));
+  fiat_p384_scalar_addcarryx_u32(&x419, &x420, x418, ((uint32_t)((fiat_p384_scalar_uint1)x346 + (fiat_p384_scalar_uint1)x276) + (uint32_t)((fiat_p384_scalar_uint1)x322 + (uint32_t)x278)), (uint32_t)((fiat_p384_scalar_uint1)x394 + (uint32_t)x350));
   fiat_p384_scalar_mulx_u32(&x421, &x422, x3, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x423, &x424, x3, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x425, &x426, x3, UINT32_C(0x3fb05b7a));
@@ -9885,7 +9885,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x557, &x558, x556, x485, x533);
   fiat_p384_scalar_addcarryx_u32(&x559, &x560, x558, x487, x535);
   fiat_p384_scalar_addcarryx_u32(&x561, &x562, x560, x489, x537);
-  fiat_p384_scalar_addcarryx_u32(&x563, &x564, x562, (((uint32_t)x490 + x420) + (x466 + x422)), (x538 + x494));
+  fiat_p384_scalar_addcarryx_u32(&x563, &x564, x562, ((uint32_t)((fiat_p384_scalar_uint1)x490 + (fiat_p384_scalar_uint1)x420) + (uint32_t)((fiat_p384_scalar_uint1)x466 + (uint32_t)x422)), (uint32_t)((fiat_p384_scalar_uint1)x538 + (uint32_t)x494));
   fiat_p384_scalar_mulx_u32(&x565, &x566, x4, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x567, &x568, x4, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x569, &x570, x4, UINT32_C(0x3fb05b7a));
@@ -9957,7 +9957,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x701, &x702, x700, x629, x677);
   fiat_p384_scalar_addcarryx_u32(&x703, &x704, x702, x631, x679);
   fiat_p384_scalar_addcarryx_u32(&x705, &x706, x704, x633, x681);
-  fiat_p384_scalar_addcarryx_u32(&x707, &x708, x706, (((uint32_t)x634 + x564) + (x610 + x566)), (x682 + x638));
+  fiat_p384_scalar_addcarryx_u32(&x707, &x708, x706, ((uint32_t)((fiat_p384_scalar_uint1)x634 + (fiat_p384_scalar_uint1)x564) + (uint32_t)((fiat_p384_scalar_uint1)x610 + (uint32_t)x566)), (uint32_t)((fiat_p384_scalar_uint1)x682 + (uint32_t)x638));
   fiat_p384_scalar_mulx_u32(&x709, &x710, x5, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x711, &x712, x5, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x713, &x714, x5, UINT32_C(0x3fb05b7a));
@@ -10029,7 +10029,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x845, &x846, x844, x773, x821);
   fiat_p384_scalar_addcarryx_u32(&x847, &x848, x846, x775, x823);
   fiat_p384_scalar_addcarryx_u32(&x849, &x850, x848, x777, x825);
-  fiat_p384_scalar_addcarryx_u32(&x851, &x852, x850, (((uint32_t)x778 + x708) + (x754 + x710)), (x826 + x782));
+  fiat_p384_scalar_addcarryx_u32(&x851, &x852, x850, ((uint32_t)((fiat_p384_scalar_uint1)x778 + (fiat_p384_scalar_uint1)x708) + (uint32_t)((fiat_p384_scalar_uint1)x754 + (uint32_t)x710)), (uint32_t)((fiat_p384_scalar_uint1)x826 + (uint32_t)x782));
   fiat_p384_scalar_mulx_u32(&x853, &x854, x6, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x855, &x856, x6, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x857, &x858, x6, UINT32_C(0x3fb05b7a));
@@ -10101,7 +10101,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x989, &x990, x988, x917, x965);
   fiat_p384_scalar_addcarryx_u32(&x991, &x992, x990, x919, x967);
   fiat_p384_scalar_addcarryx_u32(&x993, &x994, x992, x921, x969);
-  fiat_p384_scalar_addcarryx_u32(&x995, &x996, x994, (((uint32_t)x922 + x852) + (x898 + x854)), (x970 + x926));
+  fiat_p384_scalar_addcarryx_u32(&x995, &x996, x994, ((uint32_t)((fiat_p384_scalar_uint1)x922 + (fiat_p384_scalar_uint1)x852) + (uint32_t)((fiat_p384_scalar_uint1)x898 + (uint32_t)x854)), (uint32_t)((fiat_p384_scalar_uint1)x970 + (uint32_t)x926));
   fiat_p384_scalar_mulx_u32(&x997, &x998, x7, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x999, &x1000, x7, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x1001, &x1002, x7, UINT32_C(0x3fb05b7a));
@@ -10173,7 +10173,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x1133, &x1134, x1132, x1061, x1109);
   fiat_p384_scalar_addcarryx_u32(&x1135, &x1136, x1134, x1063, x1111);
   fiat_p384_scalar_addcarryx_u32(&x1137, &x1138, x1136, x1065, x1113);
-  fiat_p384_scalar_addcarryx_u32(&x1139, &x1140, x1138, (((uint32_t)x1066 + x996) + (x1042 + x998)), (x1114 + x1070));
+  fiat_p384_scalar_addcarryx_u32(&x1139, &x1140, x1138, ((uint32_t)((fiat_p384_scalar_uint1)x1066 + (fiat_p384_scalar_uint1)x996) + (uint32_t)((fiat_p384_scalar_uint1)x1042 + (uint32_t)x998)), (uint32_t)((fiat_p384_scalar_uint1)x1114 + (uint32_t)x1070));
   fiat_p384_scalar_mulx_u32(&x1141, &x1142, x8, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x1143, &x1144, x8, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x1145, &x1146, x8, UINT32_C(0x3fb05b7a));
@@ -10245,7 +10245,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x1277, &x1278, x1276, x1205, x1253);
   fiat_p384_scalar_addcarryx_u32(&x1279, &x1280, x1278, x1207, x1255);
   fiat_p384_scalar_addcarryx_u32(&x1281, &x1282, x1280, x1209, x1257);
-  fiat_p384_scalar_addcarryx_u32(&x1283, &x1284, x1282, (((uint32_t)x1210 + x1140) + (x1186 + x1142)), (x1258 + x1214));
+  fiat_p384_scalar_addcarryx_u32(&x1283, &x1284, x1282, ((uint32_t)((fiat_p384_scalar_uint1)x1210 + (fiat_p384_scalar_uint1)x1140) + (uint32_t)((fiat_p384_scalar_uint1)x1186 + (uint32_t)x1142)), (uint32_t)((fiat_p384_scalar_uint1)x1258 + (uint32_t)x1214));
   fiat_p384_scalar_mulx_u32(&x1285, &x1286, x9, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x1287, &x1288, x9, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x1289, &x1290, x9, UINT32_C(0x3fb05b7a));
@@ -10317,7 +10317,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x1421, &x1422, x1420, x1349, x1397);
   fiat_p384_scalar_addcarryx_u32(&x1423, &x1424, x1422, x1351, x1399);
   fiat_p384_scalar_addcarryx_u32(&x1425, &x1426, x1424, x1353, x1401);
-  fiat_p384_scalar_addcarryx_u32(&x1427, &x1428, x1426, (((uint32_t)x1354 + x1284) + (x1330 + x1286)), (x1402 + x1358));
+  fiat_p384_scalar_addcarryx_u32(&x1427, &x1428, x1426, ((uint32_t)((fiat_p384_scalar_uint1)x1354 + (fiat_p384_scalar_uint1)x1284) + (uint32_t)((fiat_p384_scalar_uint1)x1330 + (uint32_t)x1286)), (uint32_t)((fiat_p384_scalar_uint1)x1402 + (uint32_t)x1358));
   fiat_p384_scalar_mulx_u32(&x1429, &x1430, x10, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x1431, &x1432, x10, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x1433, &x1434, x10, UINT32_C(0x3fb05b7a));
@@ -10389,7 +10389,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x1565, &x1566, x1564, x1493, x1541);
   fiat_p384_scalar_addcarryx_u32(&x1567, &x1568, x1566, x1495, x1543);
   fiat_p384_scalar_addcarryx_u32(&x1569, &x1570, x1568, x1497, x1545);
-  fiat_p384_scalar_addcarryx_u32(&x1571, &x1572, x1570, (((uint32_t)x1498 + x1428) + (x1474 + x1430)), (x1546 + x1502));
+  fiat_p384_scalar_addcarryx_u32(&x1571, &x1572, x1570, ((uint32_t)((fiat_p384_scalar_uint1)x1498 + (fiat_p384_scalar_uint1)x1428) + (uint32_t)((fiat_p384_scalar_uint1)x1474 + (uint32_t)x1430)), (uint32_t)((fiat_p384_scalar_uint1)x1546 + (uint32_t)x1502));
   fiat_p384_scalar_mulx_u32(&x1573, &x1574, x11, UINT32_C(0xc84ee01));
   fiat_p384_scalar_mulx_u32(&x1575, &x1576, x11, UINT32_C(0x2b39bf21));
   fiat_p384_scalar_mulx_u32(&x1577, &x1578, x11, UINT32_C(0x3fb05b7a));
@@ -10461,7 +10461,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_to_montgomery(fiat_p38
   fiat_p384_scalar_addcarryx_u32(&x1709, &x1710, x1708, x1637, x1685);
   fiat_p384_scalar_addcarryx_u32(&x1711, &x1712, x1710, x1639, x1687);
   fiat_p384_scalar_addcarryx_u32(&x1713, &x1714, x1712, x1641, x1689);
-  fiat_p384_scalar_addcarryx_u32(&x1715, &x1716, x1714, (((uint32_t)x1642 + x1572) + (x1618 + x1574)), (x1690 + x1646));
+  fiat_p384_scalar_addcarryx_u32(&x1715, &x1716, x1714, ((uint32_t)((fiat_p384_scalar_uint1)x1642 + (fiat_p384_scalar_uint1)x1572) + (uint32_t)((fiat_p384_scalar_uint1)x1618 + (uint32_t)x1574)), (uint32_t)((fiat_p384_scalar_uint1)x1690 + (uint32_t)x1646));
   fiat_p384_scalar_subborrowx_u32(&x1717, &x1718, 0x0, x1693, UINT32_C(0xccc52973));
   fiat_p384_scalar_subborrowx_u32(&x1719, &x1720, x1718, x1695, UINT32_C(0xecec196a));
   fiat_p384_scalar_subborrowx_u32(&x1721, &x1722, x1720, x1697, UINT32_C(0x48b0a77a));
@@ -11416,7 +11416,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_divstep(uint32_t* out1
   uint32_t x333;
   uint32_t x334;
   fiat_p384_scalar_addcarryx_u32(&x1, &x2, 0x0, (~arg1), 0x1);
-  x3 = (fiat_p384_scalar_uint1)((fiat_p384_scalar_uint1)(x1 >> 31) & (fiat_p384_scalar_uint1)((arg3[0]) & 0x1));
+  x3 = (fiat_p384_scalar_uint1)((fiat_p384_scalar_uint1)(fiat_p384_scalar_uint1)((uint32_t)x1 >> 31) & (fiat_p384_scalar_uint1)(fiat_p384_scalar_uint1)((uint32_t)(arg3[0]) & (fiat_p384_scalar_uint1)0x1));
   fiat_p384_scalar_addcarryx_u32(&x4, &x5, 0x0, (~arg1), 0x1);
   fiat_p384_scalar_cmovznz_u32(&x6, x3, arg1, x4);
   fiat_p384_scalar_cmovznz_u32(&x7, x3, (arg2[0]), (arg3[0]));
@@ -11544,7 +11544,7 @@ static FIAT_P384_SCALAR_FIAT_INLINE void fiat_p384_scalar_divstep(uint32_t* out1
   fiat_p384_scalar_cmovznz_u32(&x191, x3, (arg5[9]), x176);
   fiat_p384_scalar_cmovznz_u32(&x192, x3, (arg5[10]), x178);
   fiat_p384_scalar_cmovznz_u32(&x193, x3, (arg5[11]), x180);
-  x194 = (fiat_p384_scalar_uint1)(x46 & 0x1);
+  x194 = (fiat_p384_scalar_uint1)((uint32_t)x46 & (fiat_p384_scalar_uint1)0x1);
   fiat_p384_scalar_cmovznz_u32(&x195, x194, 0x0, x7);
   fiat_p384_scalar_cmovznz_u32(&x196, x194, 0x0, x8);
   fiat_p384_scalar_cmovznz_u32(&x197, x194, 0x0, x9);

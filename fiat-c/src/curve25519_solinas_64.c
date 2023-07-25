@@ -54,9 +54,9 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_addcarry
   fiat_curve25519_solinas_uint128 x1;
   uint64_t x2;
   fiat_curve25519_solinas_uint1 x3;
-  x1 = ((arg1 + (fiat_curve25519_solinas_uint128)arg2) + arg3);
-  x2 = (uint64_t)(x1 & UINT64_C(0xffffffffffffffff));
-  x3 = (fiat_curve25519_solinas_uint1)(x1 >> 64);
+  x1 = (fiat_curve25519_solinas_uint128)((fiat_curve25519_solinas_uint128)(fiat_curve25519_solinas_uint128)((fiat_curve25519_solinas_uint1)arg1 + (uint64_t)arg2) + (uint64_t)arg3);
+  x2 = u64_and_u128_u64(x1, UINT64_C(0xffffffffffffffff));
+  x3 = (fiat_curve25519_solinas_uint1)((fiat_curve25519_solinas_uint128)x1 >> 64);
   *out1 = x2;
   *out2 = x3;
 }
@@ -80,11 +80,11 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_subborro
   fiat_curve25519_solinas_int128 x1;
   fiat_curve25519_solinas_int1 x2;
   uint64_t x3;
-  x1 = ((arg2 - (fiat_curve25519_solinas_int128)arg1) - arg3);
-  x2 = (fiat_curve25519_solinas_int1)(x1 >> 64);
-  x3 = (uint64_t)(x1 & UINT64_C(0xffffffffffffffff));
+  x1 = (fiat_curve25519_solinas_int128)((fiat_curve25519_solinas_int128)(fiat_curve25519_solinas_int128)((uint64_t)arg2 - (fiat_curve25519_solinas_uint1)arg1) - (uint64_t)arg3);
+  x2 = (fiat_curve25519_solinas_int1)((fiat_curve25519_solinas_int128)x1 >> 64);
+  x3 = (uint64_t)((fiat_curve25519_solinas_int128)x1 & (uint64_t)UINT64_C(0xffffffffffffffff));
   *out1 = x3;
-  *out2 = (fiat_curve25519_solinas_uint1)(0x0 - x2);
+  *out2 = (fiat_curve25519_solinas_uint1)((fiat_curve25519_solinas_uint1)0x0 - (fiat_curve25519_solinas_int1)x2);
 }
 
 /*
@@ -105,9 +105,9 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_mulx_u64
   fiat_curve25519_solinas_uint128 x1;
   uint64_t x2;
   uint64_t x3;
-  x1 = ((fiat_curve25519_solinas_uint128)arg1 * arg2);
-  x2 = (uint64_t)(x1 & UINT64_C(0xffffffffffffffff));
-  x3 = (uint64_t)(x1 >> 64);
+  x1 = u128_mul_u64_u64(arg1, arg2);
+  x2 = u64_and_u128_u64(x1, UINT64_C(0xffffffffffffffff));
+  x3 = u64_shr_u128(x1, 64);
   *out1 = x2;
   *out2 = x3;
 }
@@ -129,8 +129,8 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_cmovznz_
   fiat_curve25519_solinas_uint1 x1;
   uint64_t x2;
   uint64_t x3;
-  x1 = (!(!arg1));
-  x2 = ((fiat_curve25519_solinas_int1)(0x0 - x1) & UINT64_C(0xffffffffffffffff));
+  x1 = (fiat_curve25519_solinas_uint1)(!(fiat_curve25519_solinas_uint1)(fiat_curve25519_solinas_uint1)(!(fiat_curve25519_solinas_uint1)arg1));
+  x2 = (uint64_t)((fiat_curve25519_solinas_int1)(fiat_curve25519_solinas_int1)((fiat_curve25519_solinas_uint1)0x0 - (fiat_curve25519_solinas_uint1)x1) & (uint64_t)UINT64_C(0xffffffffffffffff));
   x3 = ((fiat_curve25519_solinas_value_barrier_u64(x2) & arg3) | (fiat_curve25519_solinas_value_barrier_u64((~x2)) & arg2));
   *out1 = x3;
 }
@@ -298,17 +298,17 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_mul(uint
   fiat_curve25519_solinas_mulx_u64(&x31, &x32, (arg1[0]), (arg2[0]));
   fiat_curve25519_solinas_addcarryx_u64(&x33, &x34, 0x0, x28, x7);
   fiat_curve25519_solinas_addcarryx_u64(&x35, &x36, x34, x26, x5);
-  x37 = (x36 + x18);
+  x37 = (uint64_t)((fiat_curve25519_solinas_uint1)x36 + (uint64_t)x18);
   fiat_curve25519_solinas_addcarryx_u64(&x38, &x39, 0x0, x33, x13);
   fiat_curve25519_solinas_addcarryx_u64(&x40, &x41, x39, x35, x8);
   fiat_curve25519_solinas_addcarryx_u64(&x42, &x43, x41, x37, 0x0);
-  x44 = (x43 + x10);
+  x44 = (uint64_t)((fiat_curve25519_solinas_uint1)x43 + (uint64_t)x10);
   fiat_curve25519_solinas_addcarryx_u64(&x45, &x46, 0x0, x30, x15);
   fiat_curve25519_solinas_addcarryx_u64(&x47, &x48, x46, x38, x16);
   fiat_curve25519_solinas_addcarryx_u64(&x49, &x50, x48, x40, x11);
   fiat_curve25519_solinas_addcarryx_u64(&x51, &x52, x50, x42, x3);
   fiat_curve25519_solinas_addcarryx_u64(&x53, &x54, x52, x44, 0x0);
-  x55 = (x54 + x2);
+  x55 = (uint64_t)((fiat_curve25519_solinas_uint1)x54 + (uint64_t)x2);
   fiat_curve25519_solinas_addcarryx_u64(&x56, &x57, 0x0, x45, x21);
   fiat_curve25519_solinas_addcarryx_u64(&x58, &x59, x57, x47, x19);
   fiat_curve25519_solinas_addcarryx_u64(&x60, &x61, x59, x49, x14);
@@ -336,12 +336,12 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_mul(uint
   fiat_curve25519_solinas_addcarryx_u64(&x104, &x105, 0x0, x82, x100);
   fiat_curve25519_solinas_addcarryx_u64(&x106, &x107, x105, x84, x98);
   fiat_curve25519_solinas_addcarryx_u64(&x108, &x109, x107, x86, x96);
-  x110 = (x109 + x97);
+  x110 = (uint64_t)((fiat_curve25519_solinas_uint1)x109 + (uint64_t)x97);
   fiat_curve25519_solinas_addcarryx_u64(&x111, &x112, 0x0, x31, x102);
   fiat_curve25519_solinas_addcarryx_u64(&x113, &x114, x112, x104, x103);
   fiat_curve25519_solinas_addcarryx_u64(&x115, &x116, x114, x106, x101);
   fiat_curve25519_solinas_addcarryx_u64(&x117, &x118, x116, x108, x99);
-  x119 = (x118 + x110);
+  x119 = (uint64_t)((fiat_curve25519_solinas_uint1)x118 + (uint64_t)x110);
   fiat_curve25519_solinas_mulx_u64(&x120, &x121, UINT8_C(0x26), x119);
   fiat_curve25519_solinas_addcarryx_u64(&x122, &x123, 0x0, x111, x120);
   fiat_curve25519_solinas_addcarryx_u64(&x124, &x125, x123, x113, 0x0);
@@ -477,7 +477,7 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_square(u
   fiat_curve25519_solinas_addcarryx_u64(&x13, &x14, x12, x4, x1);
   fiat_curve25519_solinas_addcarryx_u64(&x15, &x16, x14, x2, x9);
   fiat_curve25519_solinas_addcarryx_u64(&x17, &x18, x16, x10, x7);
-  x19 = (x18 + x8);
+  x19 = (uint64_t)((fiat_curve25519_solinas_uint1)x18 + (uint64_t)x8);
   fiat_curve25519_solinas_mulx_u64(&x20, &x21, (arg1[1]), (arg1[2]));
   fiat_curve25519_solinas_addcarryx_u64(&x22, &x23, 0x0, x13, x20);
   fiat_curve25519_solinas_addcarryx_u64(&x24, &x25, x23, x15, x21);
@@ -489,7 +489,7 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_square(u
   fiat_curve25519_solinas_addcarryx_u64(&x36, &x37, x35, x24, x24);
   fiat_curve25519_solinas_addcarryx_u64(&x38, &x39, x37, x26, x26);
   fiat_curve25519_solinas_addcarryx_u64(&x40, &x41, x39, x28, x28);
-  x42 = (((uint64_t)x41 + x29) + (uint64_t)x29);
+  x42 = (uint64_t)((uint64_t)(uint64_t)((fiat_curve25519_solinas_uint1)x41 + (fiat_curve25519_solinas_uint1)x29) + (fiat_curve25519_solinas_uint1)x29);
   fiat_curve25519_solinas_mulx_u64(&x43, &x44, (arg1[3]), (arg1[3]));
   fiat_curve25519_solinas_mulx_u64(&x45, &x46, (arg1[2]), (arg1[2]));
   fiat_curve25519_solinas_mulx_u64(&x47, &x48, (arg1[1]), (arg1[1]));
@@ -508,12 +508,12 @@ static FIAT_CURVE25519_SOLINAS_FIAT_INLINE void fiat_curve25519_solinas_square(u
   fiat_curve25519_solinas_addcarryx_u64(&x73, &x74, 0x0, x51, x69);
   fiat_curve25519_solinas_addcarryx_u64(&x75, &x76, x74, x53, x67);
   fiat_curve25519_solinas_addcarryx_u64(&x77, &x78, x76, x55, x65);
-  x79 = (x78 + x66);
+  x79 = (uint64_t)((fiat_curve25519_solinas_uint1)x78 + (uint64_t)x66);
   fiat_curve25519_solinas_addcarryx_u64(&x80, &x81, 0x0, x49, x71);
   fiat_curve25519_solinas_addcarryx_u64(&x82, &x83, x81, x73, x72);
   fiat_curve25519_solinas_addcarryx_u64(&x84, &x85, x83, x75, x70);
   fiat_curve25519_solinas_addcarryx_u64(&x86, &x87, x85, x77, x68);
-  x88 = (x87 + x79);
+  x88 = (uint64_t)((fiat_curve25519_solinas_uint1)x87 + (uint64_t)x79);
   fiat_curve25519_solinas_mulx_u64(&x89, &x90, UINT8_C(0x26), x88);
   fiat_curve25519_solinas_addcarryx_u64(&x91, &x92, 0x0, x80, x89);
   fiat_curve25519_solinas_addcarryx_u64(&x93, &x94, x92, x82, 0x0);

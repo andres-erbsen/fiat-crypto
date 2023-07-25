@@ -62,9 +62,9 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_addcarryx_u28(uint32_t* out1, fiat_p
   uint32_t x1;
   uint32_t x2;
   fiat_p521_uint1 x3;
-  x1 = ((arg1 + arg2) + arg3);
+  x1 = ((uint32_t)((fiat_p521_uint1)arg1 + (uint32_t)arg2) + arg3);
   x2 = (x1 & UINT32_C(0xfffffff));
-  x3 = (fiat_p521_uint1)(x1 >> 28);
+  x3 = (fiat_p521_uint1)((uint32_t)x1 >> 28);
   *out1 = x2;
   *out2 = x3;
 }
@@ -88,11 +88,11 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_subborrowx_u28(uint32_t* out1, fiat_
   int32_t x1;
   fiat_p521_int1 x2;
   uint32_t x3;
-  x1 = ((int32_t)(arg2 - arg1) - (int32_t)arg3);
-  x2 = (fiat_p521_int1)(x1 >> 28);
+  x1 = ((int32_t)((uint32_t)arg2 - (fiat_p521_uint1)arg1) - (int32_t)arg3);
+  x2 = (fiat_p521_int1)((int32_t)x1 >> 28);
   x3 = (x1 & UINT32_C(0xfffffff));
   *out1 = x3;
-  *out2 = (fiat_p521_uint1)(0x0 - x2);
+  *out2 = (fiat_p521_uint1)((fiat_p521_uint1)0x0 - (fiat_p521_int1)x2);
 }
 
 /*
@@ -114,9 +114,9 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_addcarryx_u27(uint32_t* out1, fiat_p
   uint32_t x1;
   uint32_t x2;
   fiat_p521_uint1 x3;
-  x1 = ((arg1 + arg2) + arg3);
+  x1 = ((uint32_t)((fiat_p521_uint1)arg1 + (uint32_t)arg2) + arg3);
   x2 = (x1 & UINT32_C(0x7ffffff));
-  x3 = (fiat_p521_uint1)(x1 >> 27);
+  x3 = (fiat_p521_uint1)((uint32_t)x1 >> 27);
   *out1 = x2;
   *out2 = x3;
 }
@@ -140,11 +140,11 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_subborrowx_u27(uint32_t* out1, fiat_
   int32_t x1;
   fiat_p521_int1 x2;
   uint32_t x3;
-  x1 = ((int32_t)(arg2 - arg1) - (int32_t)arg3);
-  x2 = (fiat_p521_int1)(x1 >> 27);
+  x1 = ((int32_t)((uint32_t)arg2 - (fiat_p521_uint1)arg1) - (int32_t)arg3);
+  x2 = (fiat_p521_int1)((int32_t)x1 >> 27);
   x3 = (x1 & UINT32_C(0x7ffffff));
   *out1 = x3;
-  *out2 = (fiat_p521_uint1)(0x0 - x2);
+  *out2 = (fiat_p521_uint1)((fiat_p521_uint1)0x0 - (fiat_p521_int1)x2);
 }
 
 /*
@@ -164,8 +164,8 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_cmovznz_u32(uint32_t* out1, fiat_p52
   fiat_p521_uint1 x1;
   uint32_t x2;
   uint32_t x3;
-  x1 = (!(!arg1));
-  x2 = ((fiat_p521_int1)(0x0 - x1) & UINT32_C(0xffffffff));
+  x1 = (fiat_p521_uint1)(!(fiat_p521_uint1)(fiat_p521_uint1)(!(fiat_p521_uint1)arg1));
+  x2 = (uint32_t)((fiat_p521_int1)(fiat_p521_int1)((fiat_p521_uint1)0x0 - (fiat_p521_uint1)x1) & (uint32_t)UINT32_C(0xffffffff));
   x3 = ((fiat_p521_value_barrier_u32(x2) & arg3) | (fiat_p521_value_barrier_u32((~x2)) & arg2));
   *out1 = x3;
 }
@@ -1061,9 +1061,9 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_carry_mul(fiat_p521_tight_field_elem
   x438 = (uint32_t)(x437 >> 28);
   x439 = (uint32_t)(x437 & UINT32_C(0xfffffff));
   x440 = (x438 + x385);
-  x441 = (fiat_p521_uint1)(x440 >> 27);
+  x441 = (fiat_p521_uint1)((uint32_t)x440 >> 27);
   x442 = (x440 & UINT32_C(0x7ffffff));
-  x443 = (x441 + x388);
+  x443 = (uint32_t)((fiat_p521_uint1)x441 + (uint32_t)x388);
   out1[0] = x439;
   out1[1] = x442;
   out1[2] = x443;
@@ -1706,9 +1706,9 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_carry_square(fiat_p521_tight_field_e
   x303 = (uint32_t)(x302 >> 28);
   x304 = (uint32_t)(x302 & UINT32_C(0xfffffff));
   x305 = (x303 + x250);
-  x306 = (fiat_p521_uint1)(x305 >> 27);
+  x306 = (fiat_p521_uint1)((uint32_t)x305 >> 27);
   x307 = (x305 & UINT32_C(0x7ffffff));
-  x308 = (x306 + x253);
+  x308 = (uint32_t)((fiat_p521_uint1)x306 + (uint32_t)x253);
   out1[0] = x304;
   out1[1] = x307;
   out1[2] = x308;
@@ -1798,10 +1798,10 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_carry(fiat_p521_tight_field_element 
   x18 = ((x17 >> 28) + (arg1[17]));
   x19 = ((x18 >> 27) + (arg1[18]));
   x20 = ((x1 & UINT32_C(0xfffffff)) + (x19 >> 27));
-  x21 = ((fiat_p521_uint1)(x20 >> 28) + (x2 & UINT32_C(0x7ffffff)));
+  x21 = (uint32_t)((fiat_p521_uint1)(fiat_p521_uint1)((uint32_t)x20 >> 28) + (uint32_t)(x2 & UINT32_C(0x7ffffff)));
   x22 = (x20 & UINT32_C(0xfffffff));
   x23 = (x21 & UINT32_C(0x7ffffff));
-  x24 = ((fiat_p521_uint1)(x21 >> 27) + (x3 & UINT32_C(0xfffffff)));
+  x24 = (uint32_t)((fiat_p521_uint1)(fiat_p521_uint1)((uint32_t)x21 >> 27) + (uint32_t)(x3 & UINT32_C(0xfffffff)));
   x25 = (x4 & UINT32_C(0x7ffffff));
   x26 = (x5 & UINT32_C(0xfffffff));
   x27 = (x6 & UINT32_C(0x7ffffff));
@@ -2554,7 +2554,7 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_to_bytes(uint8_t out1[66], const fia
   x232 = (uint8_t)(x231 & UINT8_C(0xff));
   x233 = (x231 >> 8);
   x234 = (uint8_t)(x233 & UINT8_C(0xff));
-  x235 = (fiat_p521_uint1)(x233 >> 8);
+  x235 = (fiat_p521_uint1)((uint32_t)x233 >> 8);
   out1[0] = x94;
   out1[1] = x96;
   out1[2] = x98;
@@ -2794,7 +2794,7 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_from_bytes(fiat_p521_tight_field_ele
   uint32_t x159;
   uint32_t x160;
   uint32_t x161;
-  x1 = ((uint32_t)(fiat_p521_uint1)(arg1[65]) << 26);
+  x1 = (uint32_t)((fiat_p521_uint1)(fiat_p521_uint1)(arg1[65]) << 26);
   x2 = ((uint32_t)(arg1[64]) << 18);
   x3 = ((uint32_t)(arg1[63]) << 10);
   x4 = ((uint32_t)(arg1[62]) << 2);
@@ -2869,8 +2869,8 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_from_bytes(fiat_p521_tight_field_ele
   x73 = (x61 + x72);
   x74 = (x60 + x73);
   x75 = (x74 & UINT32_C(0x7ffffff));
-  x76 = (fiat_p521_uint1)(x74 >> 27);
-  x77 = (x59 + (uint32_t)x76);
+  x76 = (fiat_p521_uint1)((uint32_t)x74 >> 27);
+  x77 = (uint32_t)((uint32_t)x59 + (fiat_p521_uint1)x76);
   x78 = (x58 + x77);
   x79 = (x57 + x78);
   x80 = (x56 + x79);
@@ -2904,8 +2904,8 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_from_bytes(fiat_p521_tight_field_ele
   x108 = (x37 + x107);
   x109 = (x36 + x108);
   x110 = (x109 & UINT32_C(0x7ffffff));
-  x111 = (fiat_p521_uint1)(x109 >> 27);
-  x112 = (x35 + (uint32_t)x111);
+  x111 = (fiat_p521_uint1)((uint32_t)x109 >> 27);
+  x112 = (uint32_t)((uint32_t)x35 + (fiat_p521_uint1)x111);
   x113 = (x34 + x112);
   x114 = (x33 + x113);
   x115 = (x32 + x114);
@@ -2939,8 +2939,8 @@ static FIAT_P521_FIAT_INLINE void fiat_p521_from_bytes(fiat_p521_tight_field_ele
   x143 = (x13 + x142);
   x144 = (x12 + x143);
   x145 = (x144 & UINT32_C(0x7ffffff));
-  x146 = (fiat_p521_uint1)(x144 >> 27);
-  x147 = (x11 + (uint32_t)x146);
+  x146 = (fiat_p521_uint1)((uint32_t)x144 >> 27);
+  x147 = (uint32_t)((uint32_t)x11 + (fiat_p521_uint1)x146);
   x148 = (x10 + x147);
   x149 = (x9 + x148);
   x150 = (x8 + x149);
