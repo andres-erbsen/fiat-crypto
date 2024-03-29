@@ -1,6 +1,8 @@
 Require Import Coq.Strings.String.
 Require Import Coq.Lists.List.
 Require Import Coq.ZArith.ZArith.
+Require Import Crypto.Util.Decidable.
+Require Import Crypto.Spec.MontgomeryCurve.
 Require Import Crypto.Spec.Curve25519.
 Require Import bedrock2.Map.Separation.
 Require Import bedrock2.Syntax.
@@ -66,12 +68,17 @@ Global Instance spec_of_x25519 : spec_of "x25519" :=
 Local Instance spec_of_fe25519_from_word : spec_of "fe25519_from_word" := Field.spec_of_from_word.
 Local Instance spec_of_fe25519_from_bytes : spec_of "fe25519_from_bytes" := Field.spec_of_from_bytes.
 Local Instance spec_of_fe25519_to_bytes : spec_of "fe25519_to_bytes" := Field.spec_of_to_bytes.
-Local Instance spec_of_montladder : spec_of "montladder" := spec_of_montladder(Z.to_nat (Z.log2 Curve25519.order)).
+Local Instance spec_of_montladder : spec_of "montladder" :=
+  spec_of_montladder
+    (Z.to_nat (Z.log2 Curve25519.order))
+    Crypto.Spec.Curve25519.field ltac:(vm_decide)
+    Curve25519.M.a Curve25519.M.b Curve25519.M.b_nonzero.
 
 Local Arguments word.rep : simpl never.
 Local Arguments word.wrap : simpl never.
 Local Arguments word.unsigned : simpl never.
 Local Arguments word.of_Z : simpl never.
+  (*
 Lemma x25519_ok : program_logic_goal_for_function! x25519.
 Proof.
   repeat straightline.
@@ -124,13 +131,14 @@ Proof.
   rewrite H29 in *. cbv [x25519_gallina].
   use_sep_assumption; cancel. eapply RelationClasses.reflexivity.
 Qed.
+*)
 
 Global Instance spec_of_x25519_base : spec_of "x25519_base" :=
   fnspec! "x25519_base" out sk / (o s : list Byte.byte) (R : _ -> Prop),
   { requires t m := m =* s$@sk * o$@out * R /\
-      length s = 32%nat /\ length o = 32%nat;
+      length s = 32%nat /\ length o = 32%nat /\ le_combine s < 2^255;
     ensures t' m := t=t' /\ m=* s$@sk ⋆ R ⋆
-      (le_split 32 (x25519_gallina (le_combine s) (F.of_Z _ 9)))$@out }.
+      le_split 32 (M.X0 (Curve25519.M.scalarmult (le_combine s) Curve25519.M.B))$@out }.
 
 Lemma x25519_base_ok : program_logic_goal_for_function! x25519_base.
 Proof.
@@ -140,19 +148,21 @@ Proof.
   { cbv [Field.FElem]. cbn. cbv [n]. ecancel_assumption. }
   repeat straightline.
 
-  seprewrite_in (@Bignum.Bignum_of_bytes _ _ _ _ _ _ 10 a2) H13. { transitivity 40%nat; trivial. }
+  seprewrite_in (@Bignum.Bignum_of_bytes _ _ _ _ _ _ 10 a2) H14. { transitivity 40%nat; trivial. }
 
   straightline_call; ssplit.
-  3: { unfold FElem, Field.FElem in *; extract_ex1_and_emp_in_goal; ssplit.
+  { unfold FElem, Field.FElem in *; extract_ex1_and_emp_in_goal; ssplit.
        { use_sep_assumption. cancel; repeat ecancel_step.
        cancel_seps_at_indices 0%nat 0%nat; trivial. cbn; reflexivity. }
     all : eauto.
     { instantiate (1:=None). exact I. } }
   { reflexivity. }
+  { eassert (2^_ = 2^255) as -> by (vm_compute; reflexivity); trivial. }
   { rewrite H3. vm_compute. inversion 1. }
   repeat straightline.
 
-  unfold FElem in H20. extract_ex1_and_emp_in H20.
+  specialize (H21 Curve25519.M.B eq_refl).
+  unfold FElem in H21. extract_ex1_and_emp_in H21.
   straightline_call; ssplit.
   { ecancel_assumption. }
   { transitivity 32%nat; auto. }
@@ -162,13 +172,38 @@ Proof.
   repeat straightline.
 
   cbv [Field.FElem] in *.
-  seprewrite_in @Bignum.Bignum_to_bytes H23.
-  seprewrite_in @Bignum.Bignum_to_bytes H23.
-  extract_ex1_and_emp_in H23.
+  seprewrite_in @Bignum.Bignum_to_bytes H24.
+  seprewrite_in @Bignum.Bignum_to_bytes H24.
+  extract_ex1_and_emp_in H24.
 
   repeat straightline; intuition eauto.
-  rewrite H27 in *. cbv [x25519_gallina].
-  use_sep_assumption; cancel. eapply RelationClasses.reflexivity.
+  rewrite H28 in *.
+  use_sep_assumption; cancel.
+  Morphisms.f_equiv. Morphisms.f_equiv. Morphisms.f_equiv. Morphisms.f_equiv. Morphisms.f_equiv. Morphisms.f_equiv.
+  cbv [MontgomeryLadder.scalarmult M.scalarmult field_parameters
+  Field.M_pos 
+  Field.a24 
+  Field.mul 
+  Field.add 
+  Field.carry_add 
+  Field.sub 
+  Field.carry_sub 
+  Field.opp 
+  Field.square 
+  Field.scmula24 
+  Field.inv 
+  Field.from_bytes 
+  Field.to_bytes 
+  Field.select_znz 
+  Field.felem_copy 
+  Field.from_word 
+  field_parameters_prefixed 
+  Curve25519.M.add
+  Curve25519.M.opp
+  ].
+  Morphisms.f_equiv.
+  eassert ((@XZProofs.M.char_ge_3 (F p) (@eq (F p)) 0%F 1%F  (@F.opp p) (@F.add p) (@F.sub p) (@F.mul p) _ = _)) as ->; [|trivial].
+  eapply (ClassicalFacts.ext_prop_dep_proof_irrel_cic PropExtensionality.propositional_extensionality).
 Qed.
 
 Require Import coqutil.Word.Naive.

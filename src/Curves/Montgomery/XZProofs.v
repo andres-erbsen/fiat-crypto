@@ -24,10 +24,14 @@ Module M.
     Context {F Feq Fzero Fone Fopp Fadd Fsub Fmul Finv Fdiv}
             {field:@Algebra.Hierarchy.field F Feq Fzero Fone Fopp Fadd Fsub Fmul Finv Fdiv}
             {Feq_dec:Decidable.DecidableRel Feq}
-            {char_ge_3:@Ring.char_ge F Feq Fzero Fone Fopp Fadd Fsub Fmul 3}
-            {char_ge_5:@Ring.char_ge F Feq Fzero Fone Fopp Fadd Fsub Fmul 5}
-            {char_ge_12:@Ring.char_ge F Feq Fzero Fone Fopp Fadd Fsub Fmul 12}
             {char_ge_28:@Ring.char_ge F Feq Fzero Fone Fopp Fadd Fsub Fmul 28}.
+
+    Local Instance char_ge_3:  @Ring.char_ge F Feq Fzero Fone Fopp Fadd Fsub Fmul 3.
+    Proof. clear -char_ge_28; eapply Algebra.Hierarchy.char_ge_weaken; eauto; vm_decide. Qed.
+    Local Instance char_ge_5:  @Ring.char_ge F Feq Fzero Fone Fopp Fadd Fsub Fmul 5.
+    Proof. clear -char_ge_28; eapply Algebra.Hierarchy.char_ge_weaken; eauto; vm_decide. Qed.
+    Local Instance char_ge_12:  @Ring.char_ge F Feq Fzero Fone Fopp Fadd Fsub Fmul 12.
+    Proof. clear -char_ge_28; eapply Algebra.Hierarchy.char_ge_weaken; eauto; vm_decide. Qed.
     Local Infix "=" := Feq : type_scope. Local Notation "a <> b" := (not (a = b)) : type_scope.
     Local Infix "+" := Fadd. Local Infix "*" := Fmul.
     Local Infix "-" := Fsub. Local Infix "/" := Fdiv.
@@ -40,6 +44,7 @@ Module M.
     Local Notation Madd := (M.add(a:=a)(b_nonzero:=b_nonzero)(char_ge_3:=char_ge_3)).
     Local Notation Mopp := (M.opp(a:=a)(b_nonzero:=b_nonzero)).
     Local Notation Mpoint := (@M.point F Feq Fadd Fmul a b).
+    Local Notation X0 := (M.X0(Fzero:=Fzero)(Feq:=Feq)(Fadd:=Fadd)(Fmul:=Fmul)(a:=a)(b:=b)).
     Local Notation to_xz := (M.to_xz(Fzero:=Fzero)(Fone:=Fone)(Feq:=Feq)(Fadd:=Fadd)(Fmul:=Fmul)(a:=a)(b:=b)).
     Local Notation xzladderstep := (M.xzladderstep(a24:=a24)(Fadd:=Fadd)(Fsub:=Fsub)(Fmul:=Fmul)).
 
@@ -226,10 +231,7 @@ Module M.
       if dec (snd xz = 0) then 0 else fst xz / snd xz.
     Hint Unfold to_x : points_as_coordinates.
 
-    Lemma to_x_to_xz Q : to_x (to_xz Q) = match M.coordinates Q with
-                                          | ∞ => 0
-                                          | (x,y) => x
-                                          end.
+    Lemma to_x_to_xz Q : to_x (to_xz Q) = X0 Q.
     Proof. t. Qed.
 
     Lemma proper_to_x_projective xz x'z'
@@ -320,8 +322,8 @@ Module M.
           (Hnz : point <> 0)
           (Hn : (0 <= n < 2^scalarbits)%Z)
           (Hscalarbits : (0 <= scalarbits)%Z)
-          (Hpoint : point = to_x (to_xz P))
-      : montladder scalarbits (Z.testbit n) point = to_x (to_xz (scalarmult n P)).
+          (Hpoint : point = X0 P)
+      : montladder scalarbits (Z.testbit n) point = X0 (scalarmult n P).
     Proof.
       pose proof (let (_, h, _, _) := AffineInstances.M.MontgomeryWeierstrassIsomorphism b_nonzero (a:=a) a2m4_nz in h) as commutative_group.
       cbv beta delta [M.montladder].
@@ -386,6 +388,7 @@ Module M.
           rewrite Z.succ_m1, Z.shiftr_0_r in *.
           cbv [M.cswap];
           destruct swap eqn:Hswap; rewrite <-!to_x_inv00 by assumption;
+            etransitivity; try eapply to_x_to_xz; f_equal;
             eauto using projective_to_xz, proper_to_x_projective. } }
     Qed.
 
@@ -393,23 +396,15 @@ Module M.
        additionally showing that the right-hand-side is 0. This comes from there
        being two points such that to_x gives 0: infinity and (0, 0). *)
 
-    Lemma opp_to_x_to_xz_0
-          (P : M.point)
-          (H : 0 = to_x (to_xz P))
-      : 0 = to_x (to_xz (Mopp P)).
+    Lemma X0_opp_0 (P : M.point) (H : 0 = X0 P) : 0 = X0 (Mopp P).
     Proof. t. Qed.
 
-    Lemma add_to_x_to_xz_0
-          (P Q : M.point)
-          (HP : 0 = to_x (to_xz P))
-          (HQ : 0 = to_x (to_xz Q))
-      : 0 = to_x (to_xz (Madd P Q)).
-    Proof. t. Qed.
+    Lemma X0_add_0 (P Q : M.point) (HP : 0 = X0 P) (HQ : 0 = X0 Q)
+      : 0 = X0(Madd P Q).
+    Proof. cbv [X0] in *; t. Qed.
 
-    Lemma scalarmult_to_x_to_xz_0
-          (n : Z) (P : M.point)
-          (H : 0 = to_x (to_xz P))
-      : 0 = to_x (to_xz (scalarmult n P)).
+    Lemma X0_scalarmult_0 (n : Z) (P : M.point) (H : 0 = X0 P)
+      : 0 = X0 (scalarmult n P).
     Proof.
       induction n using Z.peano_rect_strong.
       { cbn. t. }
@@ -417,13 +412,13 @@ Module M.
         unfold scalarmult_ref.
         rewrite Z.peano_rect_succ by lia.
         fold (scalarmult n P).
-        apply add_to_x_to_xz_0; trivial. }
+        apply X0_add_0; trivial. }
       { (* Induction case from n to Z.pred n. *)
         unfold scalarmult_ref.
         rewrite Z.peano_rect_pred by lia.
         fold (scalarmult n P).
-        apply add_to_x_to_xz_0.
-        { apply opp_to_x_to_xz_0; trivial. }
+        apply X0_add_0.
+        { apply X0_opp_0; trivial. }
         { trivial. } }
     Qed.
 
@@ -431,17 +426,15 @@ Module M.
 
     Lemma montladder_correct
           (HFinv : Finv 0 = 0)
-          (n : Z) (P : M.point)
-          (scalarbits : Z) (point : F)
-          (Hn : (0 <= n < 2^scalarbits)%Z)
-          (Hscalarbits : (0 <= scalarbits)%Z)
-          (Hpoint : point = to_x (to_xz P))
-      : montladder scalarbits (Z.testbit n) point = to_x (to_xz (scalarmult n P)).
+          (scalarbits : Z) (Hscalarbits : (0 <= scalarbits)%Z)
+          (n : Z)(Hn : (0 <= n < 2^scalarbits)%Z)
+          (P : M.point) (point : F) (Hpoint : point = X0 P)
+      : montladder scalarbits (Z.testbit n) point = X0 (scalarmult n P).
     Proof.
       destruct (dec (point = 0)) as [Hz|Hnz].
       { rewrite (montladder_correct_0 HFinv _ _ _ Hz Hn Hscalarbits).
         setoid_subst_rel Feq.
-        apply scalarmult_to_x_to_xz_0.
+        apply X0_scalarmult_0.
         trivial. }
       { apply (montladder_correct_nz HFinv _ _ _ _ Hnz Hn Hscalarbits).
         trivial. }
