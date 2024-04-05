@@ -1,0 +1,13 @@
+ % python3 loc/count.py
+Traceback (most recent call last):
+  File "/usr/local/google/home/andreser/fiat-crypto/garagedoor-loc/loc/count.py", line 120, in <module>
+    libs = getLibraries()
+           ^^^^^^^^^^^^^^
+  File "/usr/local/google/home/andreser/fiat-crypto/garagedoor-loc/loc/count.py", line 74, in getLibraries
+    absPath = logicalPath_to_absolutePhysical(line.strip())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/google/home/andreser/fiat-crypto/garagedoor-loc/loc/count.py", line 60, in logicalPath_to_absolutePhysical
+    physicalDir = loadPath[logicalDir]
+                  ~~~~~~~~^^^^^^^^^^^^
+KeyError: 'Coq.Numbers.Natural.Abstract'
+
