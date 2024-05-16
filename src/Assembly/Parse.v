@@ -258,28 +258,14 @@ Global Instance show_lvl_MEM : ShowLevel MEM
          | None => show_lvl
          end)
           (fun 'tt
-           => let reg_part
-                := (match m.(mem_base_reg), m.(mem_scale_reg) with
-                    | (*"[Reg]"          *) Some br, None         => show_REG br
-                    | (*"[Reg + Z * Reg]"*) Some br, Some (z, sr) => show_REG br  ++ " + " ++  Decimal.show_Z z  ++ " * " ++ show_REG sr (*only matching '+' here, because there cannot be a negative scale. *)
-                    | (*"[      Z * Reg]"*) None,    Some (z, sr) =>                           Decimal.show_Z z  ++ " * " ++ show_REG sr
-                    | (*"[             ]"*) None,    None         => "" (* impossible, because only offset is invalid, but we seem to need it for coq because both are option's*)
-                    end%Z) in
-              let offset_part
-                := (match m.(mem_offset) with
-                      | None => ""
-                      | Some offset
-                        => (if offset <? 0 then " - " else " + ")
-                             ++ (let offset := Z.abs offset in
-                                 if (Z.modulo offset 8 =? 0)%Z
-                                 then "0x08 * " ++ Decimal.show_Z (offset / 8)
-                                 else Hex.show_Z offset)
-                    end%Z) in
-              "[" ++ match m.(mem_base_label) with
-                     | None => reg_part ++ offset_part
-                     | Some l => "((" ++ l ++ offset_part ++ "))"
-                     end
-                  ++ "]").
+           =>       match m.(mem_offset) with Some o => Hex.show_Z o | _ => "" end ++
+                    "(" ++ 
+                    match m.(mem_base_reg) with Some r => "%"++show r | _ => "" end ++ (
+                    if is_None m.(mem_scale_reg) && is_None m.(mem_bits_access_size) then "" else
+                    "," ++
+                    match m.(mem_scale_reg) with Some r => "%"++show r | _ => "" end ++ "," ++
+                    match m.(mem_bits_access_size) with Some s => show (bits_of_AccessSize s) | _ => "" end)
+                             ++ ")").
 Global Instance show_MEM : Show MEM := show_lvl_MEM.
 
 Global Instance show_lvl_JUMP_LABEL : ShowLevel JUMP_LABEL
@@ -291,12 +277,46 @@ Global Instance show_JUMP_LABEL : Show JUMP_LABEL := show_lvl_JUMP_LABEL.
 Global Instance show_lvl_ARG : ShowLevel ARG
   := fun a
      => match a with
-        | reg r => show_lvl r
+        | reg r => fun l => "%"++show_lvl r l
         | mem m => show_lvl m
-        | const c => show_lvl c
+        | const c => fun l => "$"++Hex.show_Z c
         | label l => show_lvl l
         end.
 Global Instance show_ARG : Show ARG := show_lvl_ARG.
+
+Definition att_operand_order (instr : NormalInstruction) : list ARG :=
+  match instr.(op), instr.(args) with
+  | (mov | movzx), [dst; src] => [src; dst]
+  | xchg, [a; b] => [a; b]
+  | (setc | seto) as opc, [dst] => [dst]
+  | clc, [] => []
+  | cmovc, [dst; src] (* CMOVcc: Flags Affected: None *)
+  | cmovb, [dst; src]
+  | cmovo, [dst; src]
+  | cmovnz, [dst; src] => [src; dst]
+  | lea, [reg dst; mem src] => [mem src; reg dst]
+  | (add | adc) as opc, [dst; src] => [src; dst]
+  | (adcx | adox) as opc, [dst; src] => [src; dst]
+  | (sbb | sub) as opc, [dst; src] => [src; dst]
+  | dec, [dst] => [dst]
+  | inc, [dst] => [dst]
+  | mulx, [hi; lo; src2] => [src2; lo; hi]
+  | (Syntax.mul | imul), [src2] => [src2]
+  | imul, [src1; src2] => [src1; src2]
+  | imul, [dst; src1; src2] => [src1; src2; dst]
+  | sar, [dst; cnt] => [cnt; dst]
+  | shl, [dst; cnt] => [cnt; dst]
+  | shlx, [dst; src; cnt] => [src; cnt; dst]
+  | shr, [dst; cnt] => [cnt; dst]
+  | rcr, [dst; cnt] => [cnt; dst]
+  | shrd, [dst as lo; hi; cnt] => [label (Build_JUMP_LABEL false "#error TODO_shrd"%string); hi; cnt; dst]
+  | (and | xor | or) as opc, [dst; src] => [src; dst]
+  | bzhi, [dst; src1; src2] => [src1; src2; dst]
+  | test, [src1; src2] => [src1; src2]
+  | push, [src] => [src]
+  | pop, [dst] => [dst]
+  | _, _ => [label (Build_JUMP_LABEL false "#error unimplemented att_operand_order")]
+  end.
 
 Global Instance show_NormalInstruction : Show NormalInstruction
   := fun i
@@ -305,9 +325,13 @@ Global Instance show_NormalInstruction : Show NormalInstruction
         | Some prefix => show prefix ++ " "
         end
           ++ (show i.(op))
-          ++ match i.(args) with
+          ++ match operation_size i with (* integer operations only *)
+             | Some 8 => "b" | Some 16 => "w" | Some 32 => "l" | Some 64 => "q"
+             | _ => "#error"
+             end%N
+          ++ match att_operand_order i with
              | [] => ""
-             | _ => " " ++ String.concat ", " (List.map show i.(args))
+             | args => " " ++ String.concat ", " (List.map show args)
              end.
 
 Global Instance show_RawLine : Show RawLine
@@ -515,3 +539,357 @@ Fixpoint split_code_to_functions' (globals : list string) (ls : Lines) : Lines (
 Definition split_code_to_functions (ls : Lines) : Lines (* prefix *) * list (string (* global name *) * Lines)
   := let globals := find_globals ls in
      split_code_to_functions' globals ls.
+
+Definition ex := [
+";#include <openssl/asm_base.h>";
+"";
+";;#if !defined(OPENSSL_NO_ASM) && defined(OPENSSL_X86_64) && \";
+" ;   (defined(__APPLE__) || defined(__ELF__))";
+"";
+";.text";
+";#if defined(__APPLE__)";
+";.private_extern _fiat_p256_adx_mul";
+";.global _fiat_p256_adx_mul";
+"_fiat_p256_adx_mul:";
+";#else";
+";.type fiat_p256_adx_mul, @function";
+";.hidden fiat_p256_adx_mul";
+";.global fiat_p256_adx_mul";
+"fiat_p256_adx_mul:";
+";#endif";
+"";
+";.cfi_startproc";
+";_CET_ENDBR";
+"push rbp";
+";;.cfi_adjust_cfa_offset 8";
+";.cfi_offset rbp, -16";
+"mov rbp, rsp";
+"mov rax, rdx";
+"mov rdx, [ rsi + 0x0 ]";
+"test al, al";
+"mulx r8, rcx, [ rax + 0x0 ]";
+"mov [ rsp - 0x80 ], rbx";
+";.cfi_offset rbx, -16-0x80";
+"mulx rbx, r9, [ rax + 0x8 ]";
+"mov [ rsp - 0x68 ], r14";
+";.cfi_offset r14, -16-0x68";
+"adc r9, r8";
+"mov [ rsp - 0x60 ], r15";
+";.cfi_offset r15, -16-0x60";
+"mulx r15, r14, [ rax + 0x10 ]";
+"mov [ rsp - 0x78 ], r12";
+";.cfi_offset r12, -16-0x78";
+"adc r14, rbx";
+"mulx r11, r10, [ rax + 0x18 ]";
+"mov [ rsp - 0x70 ], r13";
+";.cfi_offset r13, -16-0x70";
+"adc r10, r15";
+"mov rdx, [ rsi + 0x8 ]";
+"mulx rbx, r8, [ rax + 0x0 ]";
+"adc r11, 0x0";
+"xor r15, r15";
+"adcx r8, r9";
+"adox rbx, r14";
+"mov [ rsp - 0x58 ], rdi";
+"mulx rdi, r9, [ rax + 0x8 ]";
+"adcx r9, rbx";
+"adox rdi, r10";
+"mulx rbx, r14, [ rax + 0x10 ]";
+"adcx r14, rdi";
+"adox rbx, r11";
+"mulx r13, r12, [ rax + 0x18 ]";
+"adcx r12, rbx";
+"mov rdx, 0x100000000";
+"mulx r11, r10, rcx";
+"adox r13, r15";
+"adcx r13, r15";
+"xor rdi, rdi";
+"adox r10, r8";
+"mulx r8, rbx, r10";
+"adox r11, r9";
+"adcx rbx, r11";
+"adox r8, r14";
+"mov rdx, 0xffffffff00000001";
+"mulx r9, r15, rcx";
+"adcx r15, r8";
+"adox r9, r12";
+"mulx r14, rcx, r10";
+"mov rdx, [ rsi + 0x10 ]";
+"mulx r10, r12, [ rax + 0x8 ]";
+"adcx rcx, r9";
+"adox r14, r13";
+"mulx r11, r13, [ rax + 0x0 ]";
+"mov r9, rdi";
+"adcx r14, r9";
+"adox rdi, rdi";
+"adc rdi, 0x0";
+"xor r9, r9";
+"adcx r13, rbx";
+"adox r11, r15";
+"mov rdx, [ rsi + 0x10 ]";
+"mulx r15, r8, [ rax + 0x10 ]";
+"adox r10, rcx";
+"mulx rcx, rbx, [ rax + 0x18 ]";
+"mov rdx, [ rsi + 0x18 ]";
+"adcx r12, r11";
+"mulx rsi, r11, [ rax + 0x8 ]";
+"adcx r8, r10";
+"adox r15, r14";
+"adcx rbx, r15";
+"adox rcx, r9";
+"adcx rcx, r9";
+"mulx r15, r10, [ rax + 0x0 ]";
+"add rcx, rdi";
+"mov r14, r9";
+"adc r14, 0";
+"xor r9, r9";
+"adcx r10, r12";
+"adox r15, r8";
+"adcx r11, r15";
+"adox rsi, rbx";
+"mulx r8, r12, [ rax + 0x10 ]";
+"adox r8, rcx";
+"mulx rcx, rbx, [ rax + 0x18 ]";
+"adcx r12, rsi";
+"adox rcx, r9";
+"mov rdx, 0x100000000";
+"adcx rbx, r8";
+"adc rcx, 0";
+"mulx rdi, r15, r13";
+"xor rax, rax";
+"adcx rcx, r14";
+"adc rax, 0";
+"xor r9, r9";
+"adox r15, r10";
+"mulx r14, r10, r15";
+"adox rdi, r11";
+"mov rdx, 0xffffffff00000001";
+"adox r14, r12";
+"adcx r10, rdi";
+"mulx r12, r11, r13";
+"adcx r11, r14";
+"adox r12, rbx";
+"mulx rbx, r13, r15";
+"adcx r13, r12";
+"adox rbx, rcx";
+"mov r8, r9";
+"adox rax, r9";
+"adcx r8, rbx";
+"adc rax, 0x0";
+"mov rcx, rax";
+"mov r15, 0xffffffffffffffff";
+"mov rdi, r10";
+"sub rdi, r15";
+"mov r14, 0xffffffff";
+"mov r12, r11";
+"sbb r12, r14";
+"mov rbx, r13";
+"sbb rbx, r9";
+"mov rax, rax";
+"mov rax, r8";
+"sbb rax, rdx";
+"sbb rcx, r9";
+"cmovc rdi, r10";
+"mov r10, [ rsp - 0x58 ]";
+"cmovc rbx, r13";
+"mov r13, [ rsp - 0x70 ]";
+";.cfi_restore r13";
+"cmovc r12, r11";
+"cmovc rax, r8";
+"mov [ r10 + 0x10 ], rbx";
+"mov rbx, [ rsp - 0x80 ]";
+";.cfi_restore rbx";
+"mov [ r10 + 0x0 ], rdi";
+"mov [ r10 + 0x8 ], r12";
+"mov [ r10 + 0x18 ], rax";
+"mov r12, [ rsp - 0x78 ]";
+";.cfi_restore r12";
+"mov r14, [ rsp - 0x68 ]";
+";.cfi_restore r14";
+"mov r15, [ rsp - 0x60 ]";
+";.cfi_restore r15";
+"pop rbp";
+";.cfi_restore rbp";
+";.cfi_adjust_cfa_offset -8";
+"ret";
+";.cfi_endproc";
+";#if defined(__ELF__)";
+";.size fiat_p256_adx_mul, .-fiat_p256_adx_mul";
+";#endif";
+"";
+";#endif"].
+
+Definition exs := [
+";#include <openssl/asm_base.h>";
+"";
+";#if !defined(OPENSSL_NO_ASM) && defined(OPENSSL_X86_64) && \";
+";    (defined(__APPLE__) || defined(__ELF__))";
+"";
+";.text";
+";#if defined(__APPLE__)";
+";.private_extern _fiat_p256_adx_sqr";
+";.global _fiat_p256_adx_sqr";
+"_fiat_p256_adx_sqr:";
+";#else";
+";.type fiat_p256_adx_sqr, @function";
+";.hidden fiat_p256_adx_sqr";
+";.global fiat_p256_adx_sqr";
+"fiat_p256_adx_sqr:";
+";#endif";
+"";
+";.cfi_startproc";
+";_CET_ENDBR";
+"push rbp";
+";.cfi_adjust_cfa_offset 8";
+";.cfi_offset rbp, -16";
+"mov rbp, rsp";
+"mov rdx, [ rsi + 0x0 ]";
+"mulx r10, rax, [ rsi + 0x18 ]";
+"mulx rcx, r11, rdx";
+"mulx r9, r8, [ rsi + 0x8 ]";
+"mov [ rsp - 0x80 ], rbx";
+";.cfi_offset rbx, -16-0x80";
+"xor rbx, rbx";
+"adox r8, r8";
+"mov [ rsp - 0x78 ], r12";
+";.cfi_offset r12, -16-0x78";
+"mulx r12, rbx, [ rsi + 0x10 ]";
+"mov rdx, [ rsi + 0x8 ]";
+"mov [ rsp - 0x70 ], r13";
+";.cfi_offset r13, -16-0x70";
+"mov [ rsp - 0x68 ], r14";
+";.cfi_offset r14, -16-0x68";
+"mulx r14, r13, rdx";
+"mov [ rsp - 0x60 ], r15";
+";.cfi_offset r15, -16-0x60";
+"mov [ rsp - 0x58 ], rdi";
+"mulx rdi, r15, [ rsi + 0x10 ]";
+"adcx r12, r15";
+"mov [ rsp - 0x50 ], r11";
+"mulx r11, r15, [ rsi + 0x18 ]";
+"adcx r10, rdi";
+"mov rdi, 0x0";
+"adcx r11, rdi";
+"clc";
+"adcx rbx, r9";
+"adox rbx, rbx";
+"adcx rax, r12";
+"adox rax, rax";
+"adcx r15, r10";
+"adox r15, r15";
+"mov rdx, [ rsi + 0x10 ]";
+"mulx r12, r9, [ rsi + 0x18 ]";
+"adcx r9, r11";
+"adcx r12, rdi";
+"mulx r11, r10, rdx";
+"clc";
+"adcx rcx, r8";
+"adcx r13, rbx";
+"adcx r14, rax";
+"adox r9, r9";
+"adcx r10, r15";
+"mov rdx, [ rsi + 0x18 ]";
+"mulx rbx, r8, rdx";
+"adox r12, r12";
+"adcx r11, r9";
+"mov rsi, [ rsp - 0x50 ]";
+"adcx r8, r12";
+"mov rax, 0x100000000";
+"mov rdx, rax";
+"mulx r15, rax, rsi";
+"adcx rbx, rdi";
+"adox rbx, rdi";
+"xor r9, r9";
+"adox rax, rcx";
+"adox r15, r13";
+"mulx rcx, rdi, rax";
+"adcx rdi, r15";
+"adox rcx, r14";
+"mov rdx, 0xffffffff00000001";
+"mulx r14, r13, rsi";
+"adox r14, r10";
+"adcx r13, rcx";
+"mulx r12, r10, rax";
+"adox r12, r11";
+"mov r11, r9";
+"adox r11, r8";
+"adcx r10, r14";
+"mov r8, r9";
+"adcx r8, r12";
+"mov rax, r9";
+"adcx rax, r11";
+"mov r15, r9";
+"adox r15, rbx";
+"mov rdx, 0x100000000";
+"mulx rcx, rbx, rdi";
+"mov r14, r9";
+"adcx r14, r15";
+"mov r12, r9";
+"adox r12, r12";
+"adcx r12, r9";
+"adox rbx, r13";
+"mulx r11, r13, rbx";
+"mov r15, 0xffffffff00000001";
+"mov rdx, r15";
+"mulx rsi, r15, rbx";
+"adox rcx, r10";
+"adox r11, r8";
+"mulx r8, r10, rdi";
+"adcx r13, rcx";
+"adox r8, rax";
+"adcx r10, r11";
+"adox rsi, r14";
+"mov rdi, r12";
+"mov rax, r9";
+"adox rdi, rax";
+"adcx r15, r8";
+"mov r14, rax";
+"adcx r14, rsi";
+"adcx rdi, r9";
+"dec r9";
+"mov rbx, r13";
+"sub rbx, r9";
+"mov rcx, 0xffffffff";
+"mov r11, r10";
+"sbb r11, rcx";
+"mov r8, r15";
+"sbb r8, rax";
+"mov rsi, r14";
+"sbb rsi, rdx";
+"sbb rdi, rax";
+"cmovc rbx, r13";
+"cmovc r8, r15";
+"cmovc r11, r10";
+"cmovc rsi, r14";
+"mov rdi, [ rsp - 0x58 ]";
+"mov [ rdi + 0x18 ], rsi";
+"mov [ rdi + 0x0 ], rbx";
+"mov [ rdi + 0x8 ], r11";
+"mov [ rdi + 0x10 ], r8";
+"mov rbx, [ rsp - 0x80 ]";
+";.cfi_restore rbx";
+"mov r12, [ rsp - 0x78 ]";
+";.cfi_restore r12";
+"mov r13, [ rsp - 0x70 ]";
+";.cfi_restore r13";
+"mov r14, [ rsp - 0x68 ]";
+";.cfi_restore r14";
+"mov r15, [ rsp - 0x60 ]";
+";.cfi_restore r15";
+"pop rbp";
+";.cfi_restore rbp";
+";.cfi_adjust_cfa_offset -8";
+"ret";
+";.cfi_endproc";
+";#if defined(__ELF__)";
+";.size fiat_p256_adx_sqr, .-fiat_p256_adx_sqr";
+";#endif";
+"";
+";#endif"].
+
+Compute
+String.concat "
+"
+match parse exs
+with Success l => show_lines l
+        | x => show_lines x end.
