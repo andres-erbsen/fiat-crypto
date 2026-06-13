@@ -686,6 +686,12 @@ Module Compilers.
                    | Some b => if b then t else f
                    | None => type.base.option.union t f
                    end
+             | ident.if_expect_true _
+               => fun b t f
+                 => match b with
+                   | Some b => if b then t else f tt
+                   | None => type.base.option.union t (f tt)
+                   end
              | ident.option_rect _ _
                => fun s n o
                  => match o with

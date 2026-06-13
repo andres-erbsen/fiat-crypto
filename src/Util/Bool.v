@@ -1,5 +1,6 @@
 (*** Boolean Utility Lemmas and Databases *)
 From Coq Require Import Bool.
+From Coq Require Import Morphisms.
 Require Import Crypto.Util.Notations.
 
 (** For equalities of booleans *)
@@ -222,3 +223,17 @@ Module Thunked.
   Lemma andb_true_intro : forall b1 b2 : bool, b1 == true /\ b2 == true -> b1 && b2 == true.
   Proof. t. Qed.
 End Thunked.
+
+Definition if_expect_true {A} (b : bool) (t : A) (f : unit -> A) : A :=
+  if b then t else f tt.
+Global Opaque if_expect_true.
+
+Global Instance if_expect_true_Proper {A}
+  : Proper (eq ==> eq ==> (eq ==> eq) ==> eq) (@if_expect_true A) | 10.
+Proof.
+  cbv [if_expect_true]; intros b b' Hb t t' Ht f f' Hf; subst b'.
+  destruct b; [exact Ht|apply Hf; reflexivity].
+Qed.
+
+
+

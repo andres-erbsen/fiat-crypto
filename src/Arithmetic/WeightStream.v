@@ -1,6 +1,7 @@
 Require Import Coq.Lists.List Crypto.Util.ListUtil.
 Require Import Coq.ZArith.ZArith Coq.micromega.Lia.
 Require Import Crypto.Util.Decidable.
+Require Import Crypto.Util.Bool.
 Require Import Crypto.Util.LetIn.
 Require Import Crypto.Util.Tactics.BreakMatch.
 Require Import Crypto.Util.ZUtil.AddGetCarry Crypto.Util.ZUtil.MulSplit Crypto.Util.ZUtil.Zselect.
@@ -611,7 +612,7 @@ Module Saturated.
   Lemma cswap_correct c a b : length a = length b -> cswap' c a b = if dec (c = 0) then (a, b) else (b, a).
   Proof. cbv [cswap']; intros; rewrite !select'_correct; break_match; congruence. Qed.
 
-  Definition condsub bound a b := let (lo, hi) := add bound 0 a (map Z.opp b) in select (-hi) lo a.
+  Definition condsub bound a b := let (lo, hi) := add bound 0 a (map Z.opp b) in if_expect_true (-hi =? 0) lo (fun _ => a).
 
   Lemma eval_map_opp bound xs : eval bound (map Z.opp xs) = - eval bound xs.
   Proof. revert bound; induction xs; trivial; intros; rewrite ?map_cons, ?eval_cons, ?IHxs; lia. Qed.
@@ -625,8 +626,8 @@ Module Saturated.
     cbv [condsub]; intros.
     destruct add eqn:H.
     rewrite add_correct in H; Prod.inversion_pair; subst.
-    rewrite eval_map_opp, eval_select;
-      break_match; rewrite Z__opp_zero_iff, map_length, Z.add_0_l, Z.add_opp_r in * by lia;
+    rewrite eval_map_opp; cbv [if_expect_true];
+      match goal with |- context [Z.eqb ?a ?b] => destruct (Z.eqb_spec a b) end; rewrite Z__opp_zero_iff, map_length, Z.add_0_l, Z.add_opp_r in * by lia;
       match goal with |- context [Z.eqb ?a ?b] => destruct (Z.eqb_spec a b) end; try contradiction;
       simpl Z.b2z; rewrite ?Z.mul_1_l, ?Z.mul_0_l, ?Z.sub_0_r; trivial.
     rewrite eval_encode, Z.mod_small; trivial; Z.div_mod_to_equations; lia.
@@ -643,21 +644,29 @@ Module Saturated.
     intuition try lia.
   Qed.
 
-  Lemma length_condsub bound a b : length (condsub bound a b) = Nat.max (length a) (length b).
-  Proof. cbv [condsub]. rewrite add_correct. rewrite length_select, length_encode,map_length. lia. Qed.
+  Lemma length_condsub bound a b (Hlen : (length b <= length a)%nat) : length (condsub bound a b) = length a.
+  Proof.
+    cbv [condsub if_expect_true]; break_match.
+    { destruct add as [lo hi] eqn:H; rewrite add_correct in H; Prod.inversion_pair; subst.
+      rewrite length_encode, map_length; lia. }
+    { reflexivity. }
+  Qed.
 
   Definition condsubs bound n (a b : list Z) : list Z :=
     NatUtil.nat_rect_arrow_nodep id (fun _ rec x => dlet x := condsub bound x b in rec x) n a.
 
   Lemma eval_condsubs bound n a b
-    (Ha : 0 <= eval bound a < weight bound (Nat.max (length a) (length b)))
+    (Hlen : (length b <= length a)%nat)
+    (Ha : 0 <= eval bound a < weight bound (length a))
     (Hb : 0 <= eval bound b) :
     eval bound (condsubs bound n a b) = eval bound a - (Z.min (Z.of_nat n) (eval bound a / eval bound b)) * eval bound b.
   Proof.
     revert dependent a; induction n; cbn -[condsub Z.mul Z.of_nat eval]; cbv [Let_In id]; intros.
     { rewrite Z.min_l; Z.div_mod_to_equations; nia. }
-    etransitivity; [eapply IHn|];
-      rewrite eval_condsub, ?length_condsub, <-?Nat.max_assoc, ?Nat.max_id;
+    assert (length b <= length (condsub bound a b))%nat by (rewrite length_condsub; lia).
+    etransitivity; [eapply IHn; try assumption|];
+      rewrite eval_condsub by (replace (Nat.max (length a) (length b)) with (length a) by lia; lia);
+      rewrite ?length_condsub;
       try lia; destruct Z.leb eqn:?; simpl Z.b2z; intuition try lia; [|].
     { assert (eval bound a / eval bound b = Z.succ (Z.pred (eval bound a / eval bound b))) as -> by lia.
       rewrite Nat2Z.inj_succ, <-Z.succ_min_distr.

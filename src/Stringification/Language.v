@@ -407,6 +407,7 @@ Module Compilers.
                 | ident.prod_rect A B T => neg_wrap_parens "prod_rect"
                 | ident.bool_rect T => neg_wrap_parens "bool_rect"
                 | ident.bool_rect_nodep T => neg_wrap_parens "bool_rect_nodep"
+                | ident.if_expect_true T => neg_wrap_parens "if_expect_true"
                 | ident.nat_rect P => neg_wrap_parens "nat_rect"
                 | ident.eager_nat_rect P => neg_wrap_parens "eager_nat_rect"
                 | ident.nat_rect_arrow P Q => neg_wrap_parens "nat_rect(→)"
@@ -672,6 +673,8 @@ Module Compilers.
              | ident.None _ => fun 'tt => (neg_wrap_parens "None", ZRange.type.base.option.None)
              | ident.nil t => fun 'tt => (neg_wrap_parens "[]", ZRange.type.base.option.None)
              | ident.prod_rect A B T => fun '((f, fr), ((p, pr), tt)) => (neg_wrap_parens ("match " ++ show_lvl p term_lvl ++ " with " ++ show_lvl f term_lvl ++ " end"), ZRange.type.base.option.None)
+             | ident.if_expect_true _
+               => fun '((b, br), (t, (f, tt))) => (fun lvl => maybe_wrap_parens (Level.ltb lvl term_lvl) ("if " ++ show_lvl b term_lvl ++ " then " ++ maybe_wrap_cast with_casts t term_lvl ++ " else " ++ maybe_wrap_cast with_casts f term_lvl), ZRange.type.base.option.None)
              | ident.bool_rect _
              | ident.bool_rect_nodep _
                => fun '(t, (f, ((b, br), tt))) => (fun lvl => maybe_wrap_parens (Level.ltb lvl term_lvl) ("if " ++ show_lvl b term_lvl ++ " then " ++ maybe_wrap_cast with_casts t term_lvl ++ " else " ++ maybe_wrap_cast with_casts f term_lvl), ZRange.type.base.option.None)

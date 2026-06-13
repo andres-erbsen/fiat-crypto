@@ -563,6 +563,10 @@ Module Compilers.
                              => apply ZRange.type.base.option.is_bounded_by_union_l
                            | [ |- ZRange.type.base.option.is_bounded_by (ZRange.type.base.option.union _ _) (Bool.bool_rect_nodep _ _ false) = true ]
                              => apply ZRange.type.base.option.is_bounded_by_union_r
+                           | [ |- ZRange.type.base.option.is_bounded_by (ZRange.type.base.option.union _ _) (Bool.if_expect_true true _ _) = true ]
+                             => apply ZRange.type.base.option.is_bounded_by_union_l
+                           | [ |- ZRange.type.base.option.is_bounded_by (ZRange.type.base.option.union _ _) (Bool.if_expect_true false _ _) = true ]
+                             => apply ZRange.type.base.option.is_bounded_by_union_r
                            end
                          | do_with_hyp' ltac:(fun H => apply H; clear H; now non_arith_t) ].
 
