@@ -798,6 +798,7 @@ Module Compilers.
                  | ident.prod_rect _ _ _
                  | ident.bool_rect _
                  | ident.bool_rect_nodep _
+                 | ident.if_expect_true _
                  | ident.nat_rect _
                  | ident.eager_nat_rect _
                  | ident.nat_rect_arrow _ _
