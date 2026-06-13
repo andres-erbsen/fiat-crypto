@@ -27,20 +27,15 @@ Module Bedrock2First.
       := main_gen ForExtraction.WordByWordMontgomery.PipelineMain.
   End WordByWordMontgomery.
 
-  Module SaturatedSolinas.
-    Definition main : unit
-      := main_gen ForExtraction.SaturatedSolinas.PipelineMain.
-  End SaturatedSolinas.
-
   Module DettmanMultiplication.
     Definition main : unit
       := main_gen ForExtraction.DettmanMultiplication.PipelineMain.
   End DettmanMultiplication.
 
-  Module SolinasReduction.
+  Module P256ADX.
     Definition main : unit
-      := main_gen ForExtraction.SolinasReduction.PipelineMain.
-  End SolinasReduction.
+      := main_gen ForExtraction.P256ADX.PipelineMain.
+  End P256ADX.
 
   Module BaseConversion.
     Definition main : unit
@@ -71,20 +66,15 @@ Module Bedrock2Later.
       := main_gen ForExtraction.WordByWordMontgomery.PipelineMain.
   End WordByWordMontgomery.
 
-  Module SaturatedSolinas.
-    Definition main : unit
-      := main_gen ForExtraction.SaturatedSolinas.PipelineMain.
-  End SaturatedSolinas.
-
   Module DettmanMultiplication.
     Definition main : unit
-      := main_gen ForExtraction.SaturatedSolinas.PipelineMain.
+      := main_gen ForExtraction.DettmanMultiplication.PipelineMain.
   End DettmanMultiplication.
 
-  Module SolinasReduction.
+  Module P256ADX.
     Definition main : unit
-      := main_gen ForExtraction.SolinasReduction.PipelineMain.
-  End SolinasReduction.
+      := main_gen ForExtraction.P256ADX.PipelineMain.
+  End P256ADX.
 
   Module BaseConversion.
     Definition main : unit

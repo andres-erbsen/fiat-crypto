@@ -18,7 +18,7 @@ Proof.
   instantiate (1:=
     (ltac:(
       let e := constr:(p256_mul) in
-      let e := eval cbv delta [p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ stream.map weight stream.prefixes stream.firstn condsub] in e in
+      let e := eval cbv delta [p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ product_scan' add' encode stream.map weight stream.prefixes stream.firstn condsub] in e in
       let r := Reify e in
       exact r))
     ) in (value of reified_p256_mul).
@@ -34,7 +34,7 @@ Proof.
   instantiate (1:=
     (ltac:(
       let e := constr:(p256_sqr) in
-      let e := eval cbv delta [p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ stream.map weight stream.prefixes stream.firstn condsub] in e in
+      let e := eval cbv delta [p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ product_scan' add' encode stream.map weight stream.prefixes stream.firstn condsub] in e in
       let r := Reify e in
       exact r))
     ) in (value of reified_p256_sqr).

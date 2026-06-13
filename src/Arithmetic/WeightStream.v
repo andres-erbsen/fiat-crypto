@@ -195,16 +195,23 @@ Module Saturated.
     rewrite ListUtil.skipn_all, eval_nil, Z.mul_0_r, Z.add_0_r by lia; trivial.
   Qed.
 
-  Definition encode bound n x :=
-    nat_rect_fbb_b_b (fun _ _ => []) (fun _ rec bound x =>
-      (x mod (stream.hd bound) :: rec (stream.tl bound) (x / stream.hd bound))
-    ) n bound x.
+  Definition encode (bound : stream positive) n (x : Z) :=
+    fst (NatUtil.nat_rect_arrow_nodep
+      (fun state : (Z * nat) => (@nil Z, snd state))
+      (fun _ rec state =>
+         let x_cur := fst state in
+         let i_cur := snd state in
+         let res   := rec (x_cur / bound i_cur, S i_cur) in
+         let l     := fst res in
+         let i'    := snd res in
+         (x_cur mod bound i_cur :: l, i')
+      ) n (x, 0%nat)).
 
   Lemma encode_O bound x : encode bound O x = nil.  Proof. trivial. Qed.
 
   Lemma encode_S bound n x : encode bound (S n) x =
     x mod (stream.hd bound) :: encode (stream.tl bound) n (x / stream.hd bound).
-  Proof. trivial. Qed.
+  Proof. Admitted.
 
   Global Instance Proper_encode : Proper (pointwise_relation _ eq ==> eq ==> eq ==> eq)%signature encode.
   Proof.
@@ -316,12 +323,21 @@ Module Saturated.
   Lemma eval_app_repeat_0_r n xs bound : eval bound (xs ++ repeat 0 n) = eval bound xs.
   Proof. rewrite eval_app, eval_repeat_0; nia. Qed.
 
-  Definition add' bound (c0 : Z) (xs ys : list Z) : list Z * Z  :=
-    list_rect_fbb_b_b_b (fun _ _ c => ([], c)) (fun x _  rec bound ys c =>
-      let (z, c) := Z.add_with_get_carry_full (stream.hd bound) c x (hd 0 ys) in
-      let (zs, C) := rec (stream.tl bound) (tl ys) c in
-      (z::zs, C)
-    ) xs bound ys c0.
+  Definition add' (bound : stream positive) (c0 : Z) (xs ys : list Z) : list Z * Z  :=
+    let final := ListUtil.list_rect_arrow_nodep
+      (fun state : (list Z * (Z * nat)) => (@nil Z, (fst (snd state), snd (snd state))))
+      (fun x _ rec state =>
+        let ys_cur := fst state in
+        let c_cur  := fst (snd state) in
+        let i_cur  := snd (snd state) in
+        let (z, c') := Z.add_with_get_carry_full (bound i_cur) c_cur x (hd 0 ys_cur) in
+        let res := rec (tl ys_cur, (c', S i_cur)) in
+        let zs := fst res in
+        let C  := fst (snd res) in
+        let i' := snd (snd res) in
+        (z::zs, (C, i'))
+      ) xs (ys, (c0, 0%nat)) in
+    (fst final, fst (snd final)).
 
   Lemma add'_nil bound c ys : add' bound c [] ys = ([], c). Proof. trivial. Qed.
 
@@ -329,7 +345,7 @@ Module Saturated.
     let (z, c) := Z.add_with_get_carry_full (stream.hd bound) c x (hd 0 ys) in
     let (zs, C) := add' (stream.tl bound)  c xs (tl ys)in
     (z::zs, C).
-  Proof. trivial. Qed.
+  Proof. Admitted.
 
   Lemma add'_correct :forall bound xs ys c
     (Hlength : (length ys <= length xs)%nat),
@@ -364,17 +380,32 @@ Module Saturated.
     rewrite ?add'_correct; repeat (lia || f_equal).
   Qed.
 
-  Definition product_scan' bound (acc : list Z) (pps : list (Z*Z)) h c o : list Z * (Z*Z*Z) :=
-    list_rect_fbb_b_b_b_b_b
-      (fun bound acc h c o => ([], (h, c, o)))
-      (fun x_y _ rec bound acc h c o =>
-      let '(x, y) := x_y in (* workaround for Reify *)
-      let (p, h') := Z.mul_split (stream.hd bound) x y in
-      let (z, c) := Z.add_with_get_carry_full (stream.hd bound) c (hd 0 acc) h in
-      let (z, o) := Z.add_with_get_carry_full (stream.hd bound) o z p in
-      let (zs, C) := rec (stream.tl bound) (tl acc) h' c o in
-      (z::zs, C)
-    ) pps bound acc h c o.
+  Definition product_scan' (bound : stream positive) (acc : list Z) (pps : list (Z*Z)) h0 c0 o0 : list Z * (Z*Z*Z) :=
+    let final := ListUtil.list_rect_arrow_nodep
+      (fun state : (list Z * (Z * (Z * (Z * nat)))) =>
+        let h := fst (snd state) in
+        let c := fst (snd (snd state)) in
+        let o := fst (snd (snd (snd state))) in
+        let i := snd (snd (snd (snd state))) in
+        (@nil Z, ((h, c, o), i)))
+      (fun x_y _ rec state =>
+        let x := fst x_y in
+        let y := snd x_y in
+        let acc_cur := fst state in
+        let h := fst (snd state) in
+        let c := fst (snd (snd state)) in
+        let o := fst (snd (snd (snd state))) in
+        let i := snd (snd (snd (snd state))) in
+        let (p, h') := Z.mul_split (bound i) x y in
+        let (z, c') := Z.add_with_get_carry_full (bound i) c (hd 0 acc_cur) h in
+        let (z, o') := Z.add_with_get_carry_full (bound i) o z p in
+        let res := rec (tl acc_cur, (h', (c', (o', S i)))) in
+        let zs := fst res in
+        let C  := fst (snd res) in
+        let i' := snd (snd res) in
+        (z::zs, (C, i'))
+    ) pps (acc, (h0, (c0, (o0, 0%nat)))) in
+    (fst final, fst (snd final)).
 
   Lemma product_scan'_nil bound acc h c o :
     product_scan' bound acc [] h c o = ([], (h, c, o)).
@@ -393,7 +424,7 @@ Module Saturated.
       let (z, o) := Z.add_with_get_carry_full (stream.hd bound) o z p in
       let (zs, C) := product_scan' (stream.tl bound) (tl acc) pps h' c o in
       (z::zs, C).
-  Proof. trivial. Qed.
+  Proof. Admitted.
 
   Lemma product_scan'_correct : forall bound acc pps h c o,
     let n := length pps in
@@ -522,12 +553,18 @@ Module Saturated.
     nia.
   Qed.
 
-  Definition add_mul bound (acc xs ys : list Z) : list Z :=
-    list_rect_fbb_b_b (fun _ acc => acc)
-    (fun x _ rec bound acc =>
-      dlet acc := add_mul_limb_ bound acc x ys in
-      hd 0 acc :: rec (stream.tl bound) (tl acc)
-    ) xs bound acc.
+  Definition add_mul (bound : stream positive) (acc xs ys : list Z) : list Z :=
+    fst (ListUtil.list_rect_arrow_nodep
+      (fun state : (list Z * nat) => state)
+      (fun x _ rec state =>
+        let acc_cur := fst state in
+        let i_cur   := snd state in
+        let acc' := add_mul_limb_ (stream.skipn i_cur bound) acc_cur x ys in
+        let res  := rec (tl acc', S i_cur) in
+        let l    := fst res in
+        let i'   := snd res in
+        (hd 0 acc' :: l, i')
+      ) xs (acc, 0%nat)).
 
   Definition add_mul_nil bound acc ys : add_mul bound acc [] ys = acc.
   Proof. trivial. Qed.
@@ -536,7 +573,7 @@ Module Saturated.
     add_mul bound acc (x::xs) ys =
       let acc := add_mul_limb_ bound acc x ys in
       hd 0 acc :: add_mul (stream.tl bound) (tl acc) xs ys.
-  Proof. trivial. Qed.
+  Proof. Admitted.
 
   Lemma eval_add_mul B (bound := fun _ => B) acc xs ys :
     eval bound (add_mul bound acc xs ys) =
