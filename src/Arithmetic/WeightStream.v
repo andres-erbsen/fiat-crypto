@@ -1,5 +1,6 @@
 Require Import Coq.Lists.List Crypto.Util.ListUtil.
 Require Import Coq.ZArith.ZArith Coq.micromega.Lia.
+Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Crypto.Util.Decidable.
 Require Import Crypto.Util.Bool.
 Require Import Crypto.Util.LetIn.
@@ -95,6 +96,9 @@ Module stream.
 
   Lemma skipn_tl {T} n (xs : stream T) i : skipn n (tl xs) i = skipn (S n) xs i.
   Proof. trivial. Qed.
+
+  Lemma skipn_skipn {T} n (xs : stream T) : skipn (S n) xs = skipn 1 (skipn n xs).
+  Proof. extensionality j; cbv [skipn]; f_equal; lia. Qed.
 
   Lemma tl_map {A B} f xs i : tl (@map A B f xs) i = map f (tl xs) i.
   Proof. exact eq_refl. Qed.
@@ -209,9 +213,50 @@ Module Saturated.
 
   Lemma encode_O bound x : encode bound O x = nil.  Proof. trivial. Qed.
 
+  Lemma encode_gen (bound : stream positive) n (x : Z) (i : nat) :
+    NatUtil.nat_rect_arrow_nodep
+      (fun state : Z * nat => (@nil Z, snd state))
+      (fun (_ : nat) rec (state : Z * nat) =>
+       let x_cur := fst state in
+       let i_cur := snd state in
+       let res := rec (x_cur / Z.pos (bound i_cur), S i_cur) in
+       let l := fst res in
+       let i' := snd res in (x_cur mod Z.pos (bound i_cur) :: l, i')) n (x, i) =
+    (encode (stream.skipn i bound) n x, (i + n)%nat).
+  Proof.
+    cbv [NatUtil.nat_rect_arrow_nodep NatUtil.nat_rect_nodep].
+    revert bound x i; induction n; intros.
+    { replace (i + 0)%nat with i by lia; reflexivity. }
+    cbn [nat_rect].
+    rewrite IHn.
+    cbn [fst snd].
+    unfold encode at 2.
+    cbv [NatUtil.nat_rect_arrow_nodep NatUtil.nat_rect_nodep].
+    cbn [nat_rect].
+    rewrite (IHn (stream.skipn i bound)).
+    cbn [fst snd].
+    cbv [stream.skipn].
+    f_equal; [f_equal|lia].
+    - f_equal; f_equal; f_equal; lia.
+    - f_equal.
+      + extensionality j; f_equal; lia.
+      + f_equal; f_equal; f_equal; lia.
+  Qed.
+
   Lemma encode_S bound n x : encode bound (S n) x =
     x mod (stream.hd bound) :: encode (stream.tl bound) n (x / stream.hd bound).
-  Proof. Admitted.
+  Proof.
+    unfold encode at 1.
+    cbv [NatUtil.nat_rect_arrow_nodep NatUtil.nat_rect_nodep].
+    cbn [nat_rect].
+    cbv [fst snd].
+    pose proof (encode_gen bound n (x / Z.pos (bound 0%nat)) 1%nat) as Hgen.
+    cbv [NatUtil.nat_rect_arrow_nodep NatUtil.nat_rect_nodep fst snd] in Hgen.
+    rewrite Hgen.
+    cbn [fst snd].
+    cbv [stream.skipn stream.hd stream.tl].
+    reflexivity.
+  Qed.
 
   Global Instance Proper_encode : Proper (pointwise_relation _ eq ==> eq ==> eq ==> eq)%signature encode.
   Proof.
@@ -341,11 +386,58 @@ Module Saturated.
 
   Lemma add'_nil bound c ys : add' bound c [] ys = ([], c). Proof. trivial. Qed.
 
+  Lemma add'_gen (bound : stream positive) xs (ys : list Z) (c0 : Z) (i : nat) :
+    ListUtil.list_rect_arrow_nodep
+      (fun state : (list Z * (Z * nat)) => (@nil Z, (fst (snd state), snd (snd state))))
+      (fun x _ rec state =>
+        let ys_cur := fst state in
+        let c_cur  := fst (snd state) in
+        let i_cur  := snd (snd state) in
+        let (z, c') := Z.add_with_get_carry_full (bound i_cur) c_cur x (hd 0 ys_cur) in
+        let res := rec (tl ys_cur, (c', S i_cur)) in
+        let zs := fst res in
+        let C  := fst (snd res) in
+        let i' := snd (snd res) in
+        (z::zs, (C, i'))
+      ) xs (ys, (c0, i)) =
+    let res := add' (stream.skipn i bound) c0 xs ys in
+    (fst res, (snd res, (i + length xs)%nat)).
+  Proof.
+    cbv [ListUtil.list_rect_arrow_nodep ListUtil.list_rect_nodep].
+    revert bound ys c0 i; induction xs as [|x xs]; intros.
+    { cbv [add' ListUtil.list_rect_arrow_nodep ListUtil.list_rect_nodep fst snd length].
+      replace (i + 0)%nat with i by lia; reflexivity. }
+    cbn [list_rect length].
+    unfold add'.
+    cbv [ListUtil.list_rect_arrow_nodep ListUtil.list_rect_nodep].
+    cbn [list_rect fst snd].
+    replace (stream.skipn i bound 0) with (bound i) by (cbv [stream.skipn]; f_equal; lia).
+    break_match.
+    rewrite IHxs.
+    pose proof (IHxs (stream.skipn i bound) (tl ys) z0 1%nat) as Hrec.
+    rewrite Hrec.
+    rewrite stream.skipn_skipn.
+    cbn [fst snd].
+    f_equal; f_equal; lia.
+  Qed.
+
   Lemma add'_cons bound c x xs ys : add' bound c (cons x xs) ys =
     let (z, c) := Z.add_with_get_carry_full (stream.hd bound) c x (hd 0 ys) in
     let (zs, C) := add' (stream.tl bound)  c xs (tl ys)in
     (z::zs, C).
-  Proof. Admitted.
+  Proof.
+    unfold add' at 1.
+    change (stream.skipn 0 bound) with bound.
+    cbn [ListUtil.list_rect_arrow_nodep ListUtil.list_rect_nodep list_rect fst snd].
+    change (bound 0%nat) with (stream.hd bound).
+    break_match.
+    rewrite add'_gen.
+    change (stream.skipn 1 bound) with (stream.tl bound).
+    destruct (add' (stream.tl bound) z0 xs (tl ys)).
+    cbn [fst snd].
+    inversion Heqp0; subst.
+    reflexivity.
+  Qed.
 
   Lemma add'_correct :forall bound xs ys c
     (Hlength : (length ys <= length xs)%nat),
@@ -417,6 +509,41 @@ Module Saturated.
   Lemma tl_firstn_S {A} n l : @tl A (firstn (S n) l) = firstn n (tl l).
   Proof. case l; cbn; rewrite ?firstn_nil; trivial. Qed.
 
+  Lemma product_scan'_gen (bound : stream positive) pps acc h0 c0 o0 i :
+    list_rect
+      (fun _ : list (Z * Z) =>
+        (list Z * (Z * (Z * (Z * nat)))) -> list Z * (Z * Z * Z * nat))
+      (fun state =>
+        (@nil Z, ((fst (snd state), fst (snd (snd state)), fst (snd (snd (snd state)))),
+                  snd (snd (snd (snd state))))))
+      (fun x_y _ rec state =>
+        let (p, h') := Z.mul_split (bound (snd (snd (snd (snd state))))) (fst x_y) (snd x_y) in
+        let (z, c') := Z.add_with_get_carry_full (bound (snd (snd (snd (snd state))))) (fst (snd (snd state))) (hd 0 (fst state)) (fst (snd state)) in
+        let (z0, o') := Z.add_with_get_carry_full (bound (snd (snd (snd (snd state))))) (fst (snd (snd (snd state)))) z p in
+        (z0 :: fst (rec (tl (fst state), (h', (c', (o', S (snd (snd (snd (snd state))))))))),
+         (fst (snd (rec (tl (fst state), (h', (c', (o', S (snd (snd (snd (snd state)))))))))),
+          snd (snd (rec (tl (fst state), (h', (c', (o', S (snd (snd (snd (snd state))))))))))))
+    ) pps (acc, (h0, (c0, (o0, i)))) =
+    let res := product_scan' (stream.skipn i bound) acc pps h0 c0 o0 in
+    (fst res, (snd res, (i + length pps)%nat)).
+  Proof.
+    revert bound acc h0 c0 o0 i; induction pps as [|[x y] pps]; intros.
+    { cbv [product_scan' ListUtil.list_rect_arrow_nodep ListUtil.list_rect_nodep fst snd length].
+      replace (i + 0)%nat with i by lia; reflexivity. }
+    cbn [list_rect length].
+    unfold product_scan'.
+    cbv [ListUtil.list_rect_arrow_nodep ListUtil.list_rect_nodep].
+    cbn [list_rect fst snd].
+    replace (stream.skipn i bound 0) with (bound i) by (cbv [stream.skipn]; f_equal; lia).
+    break_match; break_match; break_match.
+    rewrite IHpps.
+    pose proof (IHpps (stream.skipn i bound) (tl acc) z0 z2 z4 1%nat) as Hrec.
+    rewrite Hrec.
+    rewrite <-stream.skipn_skipn.
+    cbn [fst snd].
+    f_equal; f_equal; lia.
+  Qed.
+
   Lemma product_scan'_cons bound acc x y pps h c o :
     product_scan' bound acc ((x, y)::pps) h c o =
       let (p, h') := Z.mul_split (stream.hd bound) x y in
@@ -424,7 +551,19 @@ Module Saturated.
       let (z, o) := Z.add_with_get_carry_full (stream.hd bound) o z p in
       let (zs, C) := product_scan' (stream.tl bound) (tl acc) pps h' c o in
       (z::zs, C).
-  Proof. Admitted.
+  Proof.
+    unfold product_scan' at 1.
+    change (stream.skipn 0 bound) with bound.
+    cbv [ListUtil.list_rect_arrow_nodep ListUtil.list_rect_nodep].
+    cbn [list_rect fst snd].
+    change (bound 0%nat) with (stream.hd bound).
+    break_match; break_match; break_match.
+    rewrite product_scan'_gen.
+    cbn [fst snd].
+    change (stream.skipn 1 bound) with (stream.tl bound).
+    rewrite Heqp2.
+    reflexivity.
+  Qed.
 
   Lemma product_scan'_correct : forall bound acc pps h c o,
     let n := length pps in
