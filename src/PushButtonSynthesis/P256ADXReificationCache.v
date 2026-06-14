@@ -9,7 +9,6 @@ Import Basic.GallinaAndReifiedIdentList IdentifiersBasicGENERATED.Compilers.
 Import Coq.ZArith.ZArith.
 Import Coq.derive.Derive.
 Import Crypto.PushButtonSynthesis.ReificationCache.
-
 Derive reified_p256_mul
        SuchThat (is_reification_of reified_p256_mul p256_mul)
        As reified_p256_mul_correct.
@@ -18,7 +17,7 @@ Proof.
   instantiate (1:=
     (ltac:(
       let e := constr:(p256_mul) in
-      let e := eval cbv delta [p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ product_scan' add' encode stream.map weight stream.prefixes stream.firstn condsub] in e in
+      let e := eval cbv delta [bound p256 p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ product_scan' add_ add' encode diagonal weight condsub] in e in
       let r := Reify e in
       exact r))
     ) in (value of reified_p256_mul).
@@ -34,7 +33,7 @@ Proof.
   instantiate (1:=
     (ltac:(
       let e := constr:(p256_sqr) in
-      let e := eval cbv delta [p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ product_scan' add' encode stream.map weight stream.prefixes stream.firstn condsub] in e in
+      let e := eval cbv delta [bound p256 p256_sqr sqr4 two_steps_of_p256_montgomery_reduction p256_mul mul add_mul add_mul_limb_ product_scan product_scan_ product_scan' add_ add' encode diagonal weight condsub] in e in
       let r := Reify e in
       exact r))
     ) in (value of reified_p256_sqr).
